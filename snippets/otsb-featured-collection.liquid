@@ -1,0 +1,795 @@
+{%- liquid
+  assign columns_desktop = section.settings.columns_desktop | plus: 0
+  assign columns_mobile = section.settings.columns_mobile | plus: 0
+  assign rows_desktop = section.settings.rows_desktop | plus: 0
+  assign grid_items_count = section.settings.rows_desktop | times: columns_desktop
+  assign enable_desktop_slider = section.settings.enable_desktop_slider
+  assign swiper_on_mobile = section.settings.swiper_on_mobile
+  if section.settings.enable_desktop_slider and section.settings.slider_style == "vertical"
+    assign enable_slider_vertical = true
+  else 
+    assign enable_slider_vertical = false
+  endif
+  if settings.lang_direction contains request.locale.iso_code
+    assign is_rtl = true
+  else
+    assign is_rtl = false
+  endif
+
+  assign preload_image = blank
+  if section.settings.lazy_image == false
+    for block in section.blocks
+      if block.settings.show_promotion
+        if block.settings.promotion_position == 'left'
+          assign preload_image = block.settings.image
+          if block.settings.video != blank
+            assign preload_image = block.settings.video.preview_image
+          endif
+        endif
+      endif
+      break
+    endfor
+  endif
+-%}
+{%- if preload_image != blank -%}
+<div class="hidden">
+  {{ preload_image | image_url: width: 900 | image_tag: widths: '225, 375, 450, 750', preload: true, loading: 'lazy' }}
+</div>
+{%- endif -%}
+{%- assign global_css = '' -%}
+<div class="mb-4 md:mb-2 relative">
+  <div class="relative w-full bg-transparent">
+    {%- paginate pages by 1 -%}
+      <div
+        class="featured-collection relative min-h-[300px] left-0 right-0 bg-[rgba(var(--background-color))] pb-2 z-0"
+        x-data='xFeaturedCollection("{{ section.id }}", "{{ paginate.page_param }}", $el)'
+        {% comment %} x-intersect.once.margin.200px="showCollection = true"; {% endcomment %}
+      >
+    {% comment %} {% if section.blocks.size == 1 %}<div x-data="{ loading: false }">{% endif %} {% endcomment %}
+        {% if section.blocks.size > 1 %}
+          <div class="md:h-auto relative lg:mb-4 mb-2 mr-5 ml-5 z-20 overflow-auto hide-scrollbar{% unless section.settings.full_width %} pl-0 pr-0 page-width md:mx-auto{% else %} md:ml-0 md:mr-0{% endunless %}">
+            <div class="flex flex-row items-center h-full md:justify-center">
+              {%- for block in section.blocks -%}
+                {%- liquid
+                  assign collection = collections[block.settings.collection]
+                  if collection != empty
+                    assign title = collection.title
+                  else
+                    assign title = "Collection's name"
+                  endif
+                -%}
+                <button
+                  class="collection-title flex max-w-[75%] md:max-w-[30%] px-1 md:px-2"
+                  @click="select({{ forloop.index }}); setViewAllLink('{{ block.settings.collection.url | default: '' }}'); scrollIntoView($el)" 
+                  :class="currentTab === {{ forloop.index }} || 'opacity-80'"
+                  {{ block.shopify_attributes }}
+                  {% unless forloop.first %}
+                    x-intersect.once='loadData({{ forloop.index }})'
+                  {% endunless %}
+                >
+                <span class="{%- unless forloop.first %} {{ title_style }} md:border-solid md:border-l rtl:border-l-0 rtl:md:border-r  pr-4 {% endunless -%}"></span>
+                <span 
+                  class="inline-block overflow-hidden text-ellipsis {{ title_style }} inline-block h4 text-sm whitespace-nowrap px-2.5 py-1.5 cursor-pointer w-full overflow-hidden text-ellipsis md:leading-none md:px-3.5 md:py-4 hover:active_tab duration-300
+                  {%- if section.blocks.size > 1 %} leading-snug{% endif -%}
+                  {%- if section.settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif -%}"
+                  {% if section.blocks.size > 1 %}:class="currentTab === {{ forloop.index }} && 'active_tab'"{% endif %}
+                >
+                  {{ title }}
+                </span>
+                </button>
+              {%- endfor -%}
+            </div>
+          </div>
+        {% endif %}
+        {% comment %} skeleton placeholder {% endcomment %}
+        {% liquid
+          assign block_index = paginate.current_page | minus: 1
+          assign block = section.blocks[block_index]
+          assign collection = collections[block.settings.collection]
+        %}
+        
+        {% comment %} <div x-show="!loading"> {% endcomment %}
+        <div>
+          {% for block in section.blocks %}
+            {%- assign collection_description = collections[block.settings.collection] -%}
+
+            {%- if block.settings.show_description and block.settings.description != blank or collection_description.description != blank -%}
+              <div :class="currentTab === {{ forloop.index }}? '!block': 'hidden'" class="{% unless forloop.first %}hidden {% endunless %}collection-description mb-6 md:mb-10 {% if section.settings.full_width %} md:pl-8 md:pr-8{% else %} page-width md:pl-[50px] md:pr-[50px] mx-auto{% endif %}{% if section.settings.full_width_mobile == true %} {{ full_width_mobile }}{% else %} px-5{% endif %} otsb-rte text-{{ section.settings.heading_alignment }}">
+                {%- liquid
+                  assign content_truncate = collection_description.description
+                  if block.settings.description != blank
+                    assign content_truncate = block.settings.description
+                  endif
+                -%}
+                {%- render 'otsb-truncate-text-update', 
+                  number_of_lines_shown: block.settings.number_of_lines_shown 
+                  blockID: block.id,
+                  content: content_truncate,
+                  read_more_label: block.settings.read_more_label,
+                  see_less_label: block.settings.see_less_label,
+                  text_alignment_mobile: 'center',
+                  text_alignment: section.settings.heading_alignment
+                -%}
+              </div>
+            {%- endif -%}
+          {% endfor %}
+        </div>
+        <div
+          class="relative md:mt-4 lg:mt-8"
+          id="x-fc-{{ section.id }}-{{ paginate.current_page }}" x-show="currentTab == {{ paginate.current_page }}">
+          {%- liquid
+            if rows_desktop == 1 or collection.products_count <= columns_desktop and collection.products_count != 0
+              assign enable_desktop_slider = false
+            endif
+            if collection.products_count <= columns_mobile and collection.products_count != 0
+              assign swiper_on_mobile = false
+            endif
+            
+            if block.settings.show_promotion
+              assign full_width_mobile = "full-width-mobile pl-0 pr-0"
+            elsif swiper_on_mobile == false
+              assign full_width_mobile = "pl-0 pr-0"
+            elsif swiper_on_mobile
+              assign full_width_mobile = "pl-0 pr-0 md:pl-5 md:pr-5"
+            endif
+            assign disable_quickview = true
+            if block.settings.show_quickview
+              assign disable_quickview = false
+            endif 
+          %}
+          {%- style -%}
+            {% if swiper_on_mobile %}
+              @media (max-width: 767px) {
+                .preload-slide-mobile--{{ block.id }}{{ section.id }} {
+                  {%- if settings.lang_direction contains request.locale.iso_code %} 
+                    margin-left: {{ section.settings.spacing_mobile }}px;
+                  {% else %}
+                    margin-right: {{ section.settings.spacing_mobile }}px;
+                  {% endif %}
+                  width: calc(((100% + {{ section.settings.spacing_mobile }}px) / {{ columns_mobile }}) - {{ section.settings.spacing_mobile }}px);
+                }
+              }
+            {% endif %}
+          
+            {% if enable_desktop_slider and enable_slider_vertical == false %}
+              @media (min-width: 768px){
+                .preload-slide-{{ block.id }}{{ section.id }} {
+                  {%- if settings.lang_direction contains request.locale.iso_code %} 
+                    margin-left: {{ section.settings.spacing }}px;
+                  {% else %}
+                    margin-right: {{ section.settings.spacing }}px;
+                  {% endif %}
+                  {% if columns_desktop == 5 %}
+                    width: calc(((100% + {{ section.settings.spacing }}px) / 4) - {{ section.settings.spacing }}px);
+                  {% else %}
+                    width: calc(((100% + {{ section.settings.spacing }}px) / {{ columns_desktop }}) - {{ section.settings.spacing }}px);
+                  {% endif %}
+                }
+              }
+              {% if columns_desktop == 5 %}
+                @media (min-width: 1024px){
+                  .preload-slide-{{ block.id }}{{ section.id }} {
+                    width: calc(((100% + {{ section.settings.spacing }}px) / {{ columns_desktop }}) - {{ section.settings.spacing }}px);
+                  }
+                }
+              {% endif %}
+            {% endif %}
+          {%- endstyle -%}
+          {% comment %} <template x-if="showCollection"> {% endcomment %}
+            <div
+              class="__collection-list {% if is_rtl %}ltr {% endif %}{% if block.settings.show_promotion %} promotion-position-{{ block.settings.promotion_position }}{% endif %}{% if swiper_on_mobile %} carousel-mobile{% endif %}{% if enable_desktop_slider and block.settings.show_promotion == false %} carousel-tablet{% endif %}{% if section.settings.full_width %} md:pl-8 md:pr-8{% else %} page-width md:pl-[50px] md:pr-[50px] mx-auto{% endif %}{% if section.settings.full_width_mobile == true %} {{ full_width_mobile }}{% else %} px-5{% endif %}"
+              {% comment %} x-intersect.once.margin.-200px='$store.xCustomerEvent.fire("list_product_viewed", $el, {list: { title: `{{ collection.title | escape }}`, id: "collection" }})' {% endcomment %}
+            >
+              {%- if block.settings.show_promotion -%}
+                {%- assign heading_size =  block.settings.heading_size | times: settings.heading_base_size | times: 0.000225 -%}
+                {%- style -%}
+                  .card-title-{{ section.id }}-{{ block.id }} { 
+                    {%- unless block.settings.color_text.alpha == 0.0 -%}
+                      color: {{ block.settings.color_text }};
+                      --colors-text: {{ block.settings.color_text.red }}, {{ block.settings.color_text.green }}, {{ block.settings.color_text.blue }};
+                      --colors-heading: {{ block.settings.color_text.red }}, {{ block.settings.color_text.green }}, {{ block.settings.color_text.blue }};
+                    {%- endunless -%}
+                    {%- if block.settings.color_heading_highlight.alpha != 0.0 -%}
+                    --color-highlight: {{ block.settings.color_heading_highlight.red }}, {{ block.settings.color_heading_highlight.green }}, {{ block.settings.color_heading_highlight.blue }}; 
+                    {%- endif -%}
+                  }
+                  #shopify-section-{{ section.id }} .card-title-{{ section.id }}-{{ block.id }} .highlight.hl-font {
+                    color: var(--color-highlight);
+                  }
+                  #shopify-section-{{ section.id }} .card-title-{{ section.id }}-{{ block.id }} .highlight.hl-underline {
+                    color: var(--color-highlight);
+                    transition: color 0.3s cubic-bezier(0.06, 0.14, 0.8, 0.91) 0.4s;
+                  }
+                  .sub-heading-{{ block.id }} {
+                    font-size: {{ heading_size | times: 0.5 }}rem;
+                  }
+                  .heading-{{ block.id }} {
+                    font-size: {{ heading_size | times: 0.7 }}rem;
+                  }
+                  @media (min-width: 768px) {
+                    .sub-heading-{{ block.id }} {
+                      font-size: {{ heading_size | times: 0.58 }}rem;
+                    }
+                    .heading-{{ block.id }} {
+                      font-size: {{ heading_size }}rem; 
+                    }
+                    {% comment %} .card-title-{{ section.id }}-{{ block.id }} {
+                      {% if block.settings.promotion_position == 'left' %}
+                        margin-right: {{ section.settings.spacing }}px;
+                        margin-left: 0;
+                      {% else %}
+                        margin-left: {{ section.settings.spacing }}px;
+                        margin-right: 0
+                      {% endif %}
+                    } {% endcomment %}
+                  }
+                  #shopify-section-{{ section.id }} .otsb-button.otsb-button-text-link::after, 
+                  #shopify-section-{{ section.id }} .button.otsb-button-text-link::after,
+                  #shopify-section-{{ section.id }} .otsb-button.otsb-button-text-link:before, 
+                  #shopify-section-{{ section.id }} .button.otsb-button-text-link:before {
+                    {% if  block.settings.colors_text_link.alpha != 0.0 %}
+                    background-color: rgb(var(--colors-text-link));
+                    {% else %}
+                    background-color: rgba(var(--color-link), var(--alpha-link));
+                    {% endif %}
+                  }
+                  {%- unless block.settings.background_color.alpha == 0.0 -%}
+                    .background-color-{{ block.id }} {
+                      background: {{ block.settings.background_color }};
+                    }
+                  {%- endunless -%}
+                  {%- unless block.settings.background_color.alpha == 0.0 -%}
+                    .background-color-{{ block.id }} {
+                      background: {{ block.settings.background_color }};
+                    }
+                  {%- endunless -%}
+                  {%- if block.settings.show_button_style == 'primary' or block.settings.show_button_style == 'secondary' -%}
+                    .button--{{ block.id }}.button-solid,
+                    .button--{{ block.id }}.button-solid:before { 
+                      {%- unless block.settings.color_button.alpha == 0.0 -%}
+                        --colors-line-and-border: {{ block.settings.color_button.red }}, {{ block.settings.color_button.green }}, {{ block.settings.color_button.blue }};
+                        --colors-button: {{ block.settings.color_button.red }}, {{ block.settings.color_button.green }}, {{ block.settings.color_button.blue }};
+                      {%- else -%}
+                        --colors-line-and-border: var(--colors-button);
+                      {%- endunless -%}
+                      {%- unless block.settings.color_button_hover.alpha == 0.0 -%}
+                        --colors-button-hover: rgb({{ block.settings.color_button_hover.red }}, {{ block.settings.color_button_hover.green }}, {{ block.settings.color_button_hover.blue }});
+                      {%- endunless -%}
+                      {%- unless block.settings.color_text_button.alpha == 0.0 -%}
+                        --colors-button-text: {{ block.settings.color_text_button.red }}, {{ block.settings.color_text_button.green }}, {{ block.settings.color_text_button.blue }};
+                      {%- endunless -%}
+                      {%- unless block.settings.color_text_button_hover.alpha == 0.0 -%}
+                        --colors-button-text-hover: {{ block.settings.color_text_button_hover.red }}, {{ block.settings.color_text_button_hover.green }}, {{ block.settings.color_text_button_hover.blue }};
+                      {%- endunless -%}
+                      {%- unless block.settings.color_button.alpha == 0.0 -%}
+                        --color-button-mobile: {{ block.settings.color_button.red }}, {{ block.settings.color_button.green }}, {{ block.settings.color_button.blue }};
+                      {% else %}
+                        --color-button-mobile: var(--color-button);
+                      {%- endunless -%}
+                      {% if block.settings.color_text_button.alpha != 0 %}
+                        --color-button-text-mobile: rgb({{ block.settings.color_text_button.red }}, {{ block.settings.color_text_button.green }}, {{ block.settings.color_text_button.blue }});
+                      {% else %}
+                        --color-button-text-mobile:  rgb(var(--color-button-text));
+                      {% endif %}
+                    }
+                  {%- endif -%}
+                {%- endstyle -%}
+                {% liquid
+                  assign check_video = false
+                  if block.settings.video_url.type == 'youtube'
+                    assign video_type = 'youtube'
+                    assign check_video = true
+                    assign video_id = block.settings.video_url.id
+                  endif
+                  if block.settings.video_url.type == 'vimeo'
+                    assign video_type = 'vimeo'
+                    assign check_video = true
+                    assign video_id = block.settings.video_url.id
+                  endif
+                
+                  if block.settings.video != null 
+                    assign video_type = 'video_select'
+                    assign check_video = true
+                  endif
+                  assign video_alt = block.settings.video_alt_text
+                  assign show_icon_atc = false
+                  if section.settings.columns_desktop == 3
+                    assign class_sticky_content = 'md:w-1/4'
+                    assign class_grid = 'md:w-3/4'
+                  elsif section.settings.columns_desktop == 4
+                      assign class_sticky_content = 'md:w-1/3 lg:w-1/4'
+                    assign class_grid = 'md:w-2/3 lg:w-3/4'
+                    assign show_icon_atc = true
+                  elsif section.settings.columns_desktop == 5
+                    assign class_sticky_content = 'md:w-1/5'
+                    assign class_grid = 'md:w-4/5'
+                    assign show_icon_atc = true
+                  else 
+                    assign class_sticky_content = 'md:w-1/2'
+                    assign class_grid = 'md:w-1/2'
+                  endif
+
+                  assign main_button_classes = 'otsb-btn-' | append: block.settings.button_type
+                  assign main_button_classes = ' otsb-btn__' | append: block.settings.button_animation
+                %}
+                <div
+                  x-data="{open: false}" 
+                  class="card-title-{{ section.id }} card-title-{{ section.id }}-{{ block.id }} relative {{ class_sticky_content }} md:mt-0{% if section.settings.edges_type == 'rounded_corners' %} rounded-[10px]{% endif %}"
+                >
+                  {% if block.settings.product_card != blank %}
+                    {% assign index_param = section.index | append: forloop.index | plus: 0 %}
+                    {% assign card_title_block_id = block.id | append: '_card-title'%}
+                    <div class="sticky-content background-color-{{ block.id }} {% if enable_slider_vertical %} sticky top-[10px]{% else %} relative h-full{% endif %}">  
+                      {% render 'otsb-card-product',
+                        card_product: block.settings.product_card,
+                        show_vendor: block.settings.show_vendor,
+                        section_id: section.id,
+                        class_slide: 'h-auto',
+                        columns_desktop: columns_desktop,
+                        column_mobile: columns_mobile,
+                        index: forloop.index,
+                        list_name: collection.title,
+                        collection: collection,
+                        enable_desktop_slider: enable_desktop_slider,
+                        block_id: card_title_block_id,
+                        product_card_id: forloop.index,
+                        index_param: index_param,
+                        show_icon_atc: show_icon_atc,
+                        animation_loading: true,
+                        show_price_range: true,
+                        info_alignment: block.settings.content_alignment,
+                        disable_quickview: disable_quickview
+                      %}
+                    </div>
+                  {% elsif check_video %}
+                    {% if block.settings.enable_video_autoplay %}
+                    <div class="w-full{% if block.settings.video_url != blank %} flex items-center{% endif %}{% if enable_slider_vertical %} sticky top-[10px]{% endif %}"> 
+                    <div class="relative otsb-external-video{% if video_type != 'video_select' %} h-0 {% if request.design_mode %} pb-[55.75%]{% else %} pb-[56.25%]{% endif %} md:h-full{% else %} h-0{% endif %} w-full overflow-hidden otsb-video-hero{% if section.settings.edges_type == 'rounded_corners' %} md:rounded-[10px]{% unless section.settings.full_width_mobile %} rounded-[10px]{% endunless %}{% endif %}" 
+                      aria-label="{{ 'sections.video.load_video' | t: video_alt_text: block.settings.video_alt_text | escape }}"
+                      x-intersect:leave="$store.xVideo.pause($el)"
+                      @click.stop="$store.xVideo.togglePlay($el)"
+                      {% if video_type == 'video_select' %}x-intersect="$store.xVideo.play($el)"{% endif %}  
+                      {% if video_type == 'youtube' or video_type == 'vimeo' %}
+                        x-intersect.once="$store.xVideo.externalLoad($el, '{{ video_type }}', '{{ video_id }}', false, '{{ video_alt }}', 1)"
+                        x-intersect="$store.xVideo.play($el)"
+                      {% endif %}
+                      {% if block.settings.video != blank %}
+                        style="padding-bottom: {{ 1 | divided_by: block.settings.video.aspect_ratio | times: 100 }}%;"
+                      {% endif %}
+                    >
+                        {%- render 'otsb-media-video',
+                          collage: true,
+                          enable_video_autoplay: true,
+                          loop: true,
+                          video_type: video_type,
+                          video_id: video_id,
+                          video_alt: video_alt,
+                          video: block.settings.video,
+                          cover_image: block.settings.image,
+                          show_sound_control: block.settings.show_sound_control,
+                          show_price_range: true
+                        -%}
+                      </div>
+                    </div>
+                  {% else %}
+                    {% capture button_play %}
+                      <div class="button-play absolute top-1/2 left-1/2">
+                        <div class="cursor-pointer absolute z-20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60px] h-[60px] md:w-[60px] md:h-[60px] rounded-full p-5 bg-[rgba(var(--image-treatment-text),0.06)] hover:bg-[rgba(var(--image-treatment-text),0.1)] bg-opacity-30 disabled:cursor-not-allowed">
+                          <span class="pointer-events-none duration-200 bg-button-play absolute w-4 h-5 md:w-4 md:h-5 top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-[rgba(var(--image-treatment-text))]">
+                            {% render 'otsb-icon-media', icon: 'icon-play', class: 'w-full h-full' %}
+                          </span>
+                        </div>
+                      </div>
+                    {% endcapture %}
+                    {% if video_type == 'youtube' %}
+                      {% comment %}theme-check-disable RemoteAsset{% endcomment %}
+                      <div class="w-full h-0 otsb-video overflow-hidden otsb-external-video pb-[100%]{% if enable_slider_vertical %} sticky top-[10px]{% else %} relative{% endif %}{% if section.settings.edges_type == 'rounded_corners' %} md:rounded-[10px]{% unless section.settings.full_width_mobile %} rounded-[10px]{% endunless %}{% endif %}"
+                        x-intersect:leave="$store.xVideo.pause($el)"
+                        x-data="{ isHovered: false }"
+                        {% if video_type == 'video_select' %}@click.prevent="$store.xVideo.mp4Thumbnail($el)"{% endif %}
+                        {% if video_type == 'youtube' or video_type == 'vimeo' %}@click.prevent="$store.xVideo.externalLoad($el, '{{ video_type }}', '{{ video_id }}', false, '{{ video_alt }}')"{% endif %}
+                      >
+                        <picture>
+                          <source type="image/webp" srcset="{{ video_id | prepend: 'https://i.ytimg.com/vi_webp/' | append: '/maxresdefault.webp' }}">
+                          <source type="image/jpeg" srcset="{{ video_id | prepend: 'https://i.ytimg.com/vi/' | append: '/maxresdefault.jpg' }}">
+                          <img 
+                            src="{{ video_id | prepend: 'https://i.ytimg.com/vi_webp/' | append: '/maxresdefault.webp' }}" 
+                            loading="lazy" 
+                            class="w-full h-full absolute object-cover" 
+                            alt="{{ video_alt }}" 
+                            width="1280" 
+                            height="980"
+                          />
+                        </picture>
+                        {{ button_play }}
+                      </div>
+                      {% comment %}theme-check-enable RemoteAsset{% endcomment %}
+                    {% elsif video_type == 'vimeo' %}
+                      {%- capture options -%}
+                        {
+                          'alt': '{{ video_alt }}',
+                          'width': 1280
+                        }
+                      {%- endcapture -%}
+                      <div class="external-video overflow-hidden w-full h-0 otsb-video otsb-external-video pb-[56.25%]{% if enable_slider_vertical %} sticky top-[10px]{% else %} relative{% endif %}{% if section.settings.edges_type == 'rounded_corners' %} md:rounded-[10px]{% unless section.settings.full_width_mobile %} rounded-[10px]{% endunless %}{% endif %}"
+                        x-intersect:leave="$store.xVideo.pause($el)"
+                        {% if video_type == 'video_select' %}@click.prevent="$store.xVideo.mp4Thumbnail($el)"{% endif %}
+                        {% if video_type == 'youtube' or video_type == 'vimeo' %}@click.prevent="$store.xVideo.externalLoad($el, '{{ video_type }}', '{{ video_id }}', false, '{{ video_alt }}')"{% endif %}  
+                      >
+                        <div x-init="$store.xVideo.renderVimeoFacade($el, '{{ video_id }}', {{ options }})"></div>
+                        {{ button_play }}
+                      </div>
+                    {% elsif video_type == 'video_select' %}
+                      <div class="w-full otsb-video overflow-hidden otsb-external-video{% if enable_slider_vertical %} sticky top-[10px]{% else %} relative{% endif %}{% if section.settings.edges_type == 'rounded_corners' %} md:rounded-[10px]{% unless section.settings.full_width_mobile %} rounded-[10px]{% endunless %}{% endif %}"
+                        x-intersect:leave="$store.xVideo.pause($el)"
+                        x-data="{ isHovered: false }"
+                        {% if video_type == 'video_select' %}@click.prevent="$store.xVideo.mp4Thumbnail($el);"{% endif %}
+                        {% if video_type == 'youtube' or video_type == 'vimeo' %}@click.prevent="$store.xVideo.externalLoad($el, '{{ video_type }}; $store.xVideo.togglePlay($el)', '{{ video_id }}', false, '{{ video_alt }}')"{% endif %}  
+                        style="padding-bottom: {{ 1 | divided_by: block.settings.video.aspect_ratio | times: 100 }}%;"
+                      > 
+                      {{ block.settings.video
+                        | video_tag:
+                          image_size: "1100x",
+                          loop: false,
+                          controls: false,
+                          muted: false,
+                          class: "w-full h-full absolute otsb-video object-cover",
+                          alt: block.settings.video.alt
+                          | replace: '<video ', '<video x-on:mouseover="isHovered = true" x-on:mouseleave="isHovered = false" :controls="isHovered" '
+                      }}
+                      {% comment %}theme-check-disable ImgLazyLoading{% endcomment %}
+                        <img
+                          srcset="{{ block.settings.video.preview_image | image_url: width: 375 }} 375w,
+                            {{ block.settings.video.preview_image | image_url: width: 450 }} 450w,
+                            {{ block.settings.video.preview_image | image_url: width: 750 }} 750w,
+                            {{ block.settings.video.preview_image | image_url: width: 900 }} 900w,
+                            {{ block.settings.video.preview_image | image_url: width: 1100 }} 1100w,
+                            {{ block.settings.video.preview_image | image_url: width: 1500 }} 1500w,
+                            {{ block.settings.video.preview_image | image_url: width: 1780 }} 1780w,
+                            {{ block.settings.video.preview_image | image_url }} {{ media.preview_image.width }}w"
+                          src="{{ block.settings.video.preview_image | image_url: width: 1780 }}"
+                          alt="{{ block.settings.video.preview_image.alt | escape }}"
+                          sizes="{{ sizes }}"
+                        {% if section.settings.lazy_image or collection_index > 0 %}
+                          loading="lazy"
+                        {% else %}
+                          loading="eager"
+                        {% endif %}
+                          width="{{ block.settings.video.preview_image.width }}"
+                          height="{{ block.settings.video.preview_image.height }}"
+                          class="img-thumbnail duration-300 absolute w-full h-full object-cover"
+                        >
+                        {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
+                        {{ button_play }}
+                      </div>
+                    {% endif %}
+                  {% endif %}
+                  {% else %}
+                    {%- liquid
+                      assign sticky_content_classes = "sticky-content overflow-clip"
+                      if enable_slider_vertical
+                        assign sticky_content_classes = sticky_content_classes | append: " sticky top-[10px]"
+                        if block.settings.enable_text_overlay
+                          assign sticky_content_classes = sticky_content_classes | append: " h-1/2"
+                        else
+                          assign sticky_content_classes = sticky_content_classes | append: " h-auto"
+                        endif
+                      else
+                        assign sticky_content_classes = sticky_content_classes | append: " relative h-full"
+                      endif
+                    -%}
+                    <div class="{{ sticky_content_classes }}">
+                      {% if block.settings.card_link != blank %}
+                        <a href="{{ block.settings.card_link }}"{% if block.settings.open_new_window %} target="_blank"{% endif %} class="absolute block top-0 left-0 right-0 bottom-0 z-2"></a>
+                      {% endif %}
+                      {% render 'otsb-promotion-image',
+                        blockID: block.id,
+                        image: block.settings.image,
+                        image_ratio: block.settings.image_ratio,
+                        enable_text_overlay: block.settings.enable_text_overlay,
+                        heading: block.settings.heading,
+                        content: block.settings.content,
+                        button_label: block.settings.button_label,
+                        button_link: block.settings.button_link,
+                        content_alignment: block.settings.content_alignment,
+                        background_color: block.settings.background_color,
+                        full_width: section.settings.full_width,
+                        overlay_opacity: block.settings.overlay_opacity,
+                        show_button_style: block.settings.show_button_style,
+                        color_text: block.settings.color_text,
+                        color_button: block.settings.color_button,
+                        color_text_button: block.settings.color_text_button,
+                        color_button_hover: block.settings.color_button_hover,
+                        color_text_button_hover: block.settings.color_text_button_hover,
+                        button_color_mobile: block.settings.button_color_mobile,
+                        color_button_secondary: block.settings.color_button_secondary,
+                        secondary_button_text: block.settings.secondary_button_text,
+                        heading_size: block.settings.heading_size,
+                        text_size: block.settings.text_size,
+                        content_position: block.settings.content_position,
+                        open_new_window: block.settings.open_new_window,
+                        open_new_window_button : block.settings.open_new_window_button,
+                        colors_text_link: block.settings.colors_text_link,
+                        heading_highlight: true,
+                        color_heading_highlight_light: block.settings.color_heading_highlight,
+                        highlight_type: block.settings.highlight_type,
+                        animation_loading: true,
+                        main_button_classes: main_button_classes,
+                        custom_icon_button: block.settings.custom_icon_button,
+                        button_animation: block.settings.button_animation,
+                        card_link: block.settings.card_link,
+                        columns_desktop: columns_desktop,
+                        button_type: block.settings.button_type
+                      %}
+                    </div>
+                  {% endif %}
+                </div>
+              {%- endif -%}
+              <div {% if block.settings.show_promotion %}
+                class="{{ class_grid }} {% if section.settings.full_width_mobile and swiper_on_mobile == false %} full-width md:pl-0 md:pr-0{% endif %}"
+                {% endif %}
+              >
+                {%- liquid
+                  assign progress_bar = grid_items_count 
+                  if collection.all_products_count < grid_items_count
+                    assign progress_bar = collection.all_products_count
+                  endif
+                -%}
+                <div
+                  id="x-collection-{{ block.id }}"
+                  class="collection{% if enable_desktop_slider or swiper_on_mobile %} overflow-hidden x-splide visible splide{% endif %}{% if swiper_on_mobile and section.settings.full_width_mobile %} pl-5 pr-5 md:pl-0 md:pr-0{% endif %}"
+                  {% if enable_desktop_slider or swiper_on_mobile -%}
+                    x-data-slider="{{ section.id }}"
+                    x-intersect.once.margin.200px='otsbIdleTask(()=>requestAnimationFrame(()=>$store.xSplide.load($el, {
+                      "speed": 1000,
+                      "pagination": false, 
+                      "mediaQuery": "min",
+                      "updateOnMove": "true",
+                      "pauseOnHover": true,
+                      "pauseOnFocus": false,
+                      "arrows": true,
+                      {% if settings.lang_direction contains request.locale.iso_code %} 
+                      "direction": "rtl",
+                      {% endif %}
+                      {%- if section.settings.auto_play -%}
+                        "rewind": true,
+                        "autoplay": true,
+                        "interval": {{ section.settings.change_slides_speed | times: 1000 }},
+                      {%- endif %}
+                      "progressBar": {{ progress_bar }},
+                      "breakpoints": {
+                        300: {
+                          {% if swiper_on_mobile == false -%}
+                            "destroy": true,
+                          {%- endif -%}
+                          "gap": "{{ section.settings.spacing_mobile }}px",
+                          "perPage": {{ columns_mobile }},
+                          "perMove": {{ columns_mobile }},
+                          "drag": false,
+                        },
+                        768: {
+                          {% if enable_desktop_slider == false or enable_slider_vertical -%}
+                            "destroy": true,
+                          {%- else -%}
+                            "destroy": false,
+                          {%- endif %}
+                          "drag": true,
+                          "gap": "{{ section.settings.spacing }}px",
+                          {% if columns_desktop == 5 %}
+                            "perPage": 4,
+                            "perMove": 4
+                          {% else %}
+                            "perPage": {{ columns_desktop }},
+                            "perMove": {{ columns_desktop }}
+                          {% endif %}
+                        },
+                        1024: {
+                          "perPage": {{ columns_desktop }},
+                          "perMove": {{ columns_desktop }}
+                        }
+                      },
+                      "events": [
+                        {
+                          "event": "ready",
+                          "callback": () => {
+                            document.dispatchEvent(new CustomEvent("eurus:{{ section.id }}:splide-ready"));
+                          }
+                        }
+                      ]
+                    })))'
+                  {%- endif -%}>
+                  {% style %}
+                    #x-collection-{{ block.id }} .splide__list .card-product {
+                      {%- if section.settings.swiper_on_mobile -%}
+                      margin-right: {{ section.settings.spacing_mobile }}px;
+                      width: calc({{ 100.0 | divided_by: columns_mobile }}% - {{ section.settings.spacing_mobile | divided_by: columns_mobile }}px);
+                      {%- endif -%}
+                      
+                      @media (min-width: 768px) {
+                        {%- if enable_desktop_slider and section.settings.slider_style == 'horizontal' -%}
+                          margin-right: {{ section.settings.spacing }}px;
+                          {%- assign col_space = columns_desktop | minus: 1.0 -%}
+                          {%- assign float_col_desk = columns_desktop | divided_by: 1.0 -%}
+                          width: calc({{ 100.0 | divided_by: columns_desktop }}% - {{ section.settings.spacing | times: col_space | divided_by: float_col_desk }}px);
+                        {%- else -%}
+                          width:100%;margin-right:0;
+                        {%- endif -%}
+                      }
+                    }
+                    .gap-mobile-{{ block.id }}-{{ section.id }} {
+                      gap: {{ spacing_mobile }}px;
+                    }
+                    #shopify-section-{{ section.id }} .splide-progress-final {
+                      width: 100%;
+                      {%- if section.settings.line_border.alpha != 0.0 -%}
+                        --colors-line-and-border-base: {{ section.settings.line_border.red }}, {{ section.settings.line_border.green }}, {{ section.settings.line_border.blue }};
+                      {%- else -%}
+                        --colors-line-and-border-base: 82,81,81;
+                      {%- endif -%}
+                    }
+                    @media (min-width: 768px) {
+                      #shopify-section-{{ section.id }} .splide-progress-final {
+                        width: calc(100% - 60px);
+                      }
+                      .gap-{{ block.id }}-{{ section.id }} {
+                        {% if enable_desktop_slider and section.settings.slider_style != "vertical" %}
+                          gap: 0px;
+                        {% else %}
+                          gap: {{ spacing }}px;
+                        {% endif %}
+                      }
+                    }
+                  {% endstyle %}
+                  {%- if swiper_on_mobile or enable_desktop_slider and section.settings.slider_style != "vertical" -%} 
+                  <div class="{% if swiper_on_mobile %} block {% else %} otsb-hidden {% endif %}{% if enable_desktop_slider and section.settings.slider_style != "vertical" %} md:block {% else %} md:otsb-hidden {% endif %} splide__arrows gap-2 absolute bottom-0 md:w-[44px] md:h-[16px] right-0 w-full h-full"> 
+                    <button class="splide__arrow splide__arrow--prev button-arrow absolute top-1/2 -translate-y-1/2 md:translate-none rounded-full none_border z-2 w-[40px] h-[40px] md:w-[16px] md:h-[16px] after:text-[20px] rtl:right-0 rtl:-rotate-90 rtl:left-auto left-0 rotate-180 duration-200 opacity-60 md:hover:opacity-100 disabled:cursor-not-allowed transition-all ease-in-out disabled:opacity-30" aria-label="previous slide">
+                    {% if swiper_on_mobile %}
+                      <span class="md:hidden w-[16px] h-[16px] block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 -rotate-90">{% render 'otsb-icon-alls', icon: 'icon-caret' %}</span>
+                    {% endif %}
+                      <span class="otsb-hidden md:block">{% render 'otsb-icon-alls', icon: 'icon-arrow' %}</span>
+                    </button>
+                    <button class="splide__arrow splide__arrow--next button-arrow absolute top-1/2 -translate-y-1/2 md:translate-none rounded-full none_border z-2 w-[40px] h-[40px] md:w-[16px] md:h-[16px] after:text-[20px] rtl:left-0 rtl:rotate-90 rtl:right-auto right-0  duration-200 opacity-60 hover:md:opacity-100 disabled:cursor-not-allowed transition-all ease-in-out disabled:opacity-30" aria-label="previous slide">
+                    {% if swiper_on_mobile %}
+                      <span class="md:hidden w-[16px] h-[16px] block absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 -rotate-90">{% render 'otsb-icon-alls', icon: 'icon-caret' %}</span>
+                    {% endif %}
+                      <span class="otsb-hidden md:block">{% render 'otsb-icon-alls', icon: 'icon-arrow' %}</span>
+                    </button>
+                  </div>
+                {%- endif -%}
+                  <div class="splide__track{% if enable_desktop_slider %} md:cursor-grab{% endif %} {% if block.settings.show_promotion %} md:pl-0 md:pr-0{% endif %} lg:pl-0 lg:pr-0">
+                    <div class="splide__list gap-{{ block.id }}-{{ section.id }}{% if enable_desktop_slider == false or enable_slider_vertical %} md:grid{% if columns_desktop == 5 %} md:grid-cols-4{% else %} md:grid-cols-{{ columns_desktop }}{% endif %} lg:grid-cols-{{ columns_desktop }}{% else %} md:grid-cols-none md:flex md:w-full md:gap-0{% endif %}{% if swiper_on_mobile %} flex w-full{% else %} otsb-grid grid-cols-{{ columns_mobile }} md:flex-nowrap gap-mobile-{{ block.id }}-{{ section.id }}{% endif %}">
+                      {%- for product in collection.products limit: grid_items_count -%}
+                        {%- liquid
+                          assign product_card_id = current_page | append: "-" | append: forloop.index
+                          assign preload_slide_class = 'preload-slide-' | append: block.id | append: section.id | append: ' preload-slide-mobile--' | append: block.id | append: section.id
+                          if enable_desktop_slider or swiper_on_mobile
+                            assign class_slide = 'splide__slide x-splide-slide h-auto ' | append: preload_slide_class
+                          endif
+                          assign index_param = section.index | append: block_index | append: forloop.index | plus: 0
+                          assign product_card_loading = 'eager'
+                          if preload_image != blank or paginate.current_page > 1
+                            assign product_card_loading = 'lazy'
+                          else
+                            if section.settings.lazy_image
+                              assign product_card_loading = 'lazy'
+                            endif
+                            if columns_mobile == 1 and forloop.index > 1
+                              assign product_card_loading = 'lazy'
+                            endif
+                          endif
+                        -%}
+                        {% render 'otsb-card-product',
+                          card_product: product, 
+                          show_vendor: block.settings.show_vendor,
+                          show_highlighted_attributes: block.settings.show_highlighted_attributes,
+                          show_rating: block.settings.show_rating,
+                          section_id: section.id,
+                          class_slide: class_slide,
+                          columns_desktop: columns_desktop,
+                          column_mobile: columns_mobile,
+                          index: forloop.index,
+                          list_name: collection.title,
+                          collection: collection,
+                          enable_desktop_slider: enable_desktop_slider,
+                          swiper_on_mobile: swiper_on_mobile,
+                          block_id: block.id,
+                          product_card_id: product_card_id,
+                          disable_quickview: disable_quickview,
+                          index_param: index_param,
+                          show_icon_atc: show_icon_atc,
+                          animation_loading: true,
+                          show_price_range: true,
+                          info_alignment: section.settings.info_alignment_card_product,
+                          loading: product_card_loading
+                        %}
+                      {%- else -%}
+                        {%- for i in (1..grid_items_count) -%}
+                          {%- liquid 
+                            assign ratio = 100 
+                            case section.settings.product_image_ratio
+                              when "portrait"
+                                assign ratio = 150.0
+                              when "landscape"
+                                assign ratio = 75.0
+                              when "wide"
+                                assign ratio = 56.25
+                              when "3/4"
+                                assign ratio = 133
+                            endcase
+                            assign preload_slide_class = 'preload-slide-' | append: block.id | append: section.id | append: ' preload-slide-mobile--' | append: block.id | append: section.id
+                          -%}
+                          <div x-slide-index="{{ forloop.index | minus: 1 }}" class="grid-item{% if swiper_on_mobile or enable_desktop_slider and section.settings.slider_style != "vertical" %} splide__slide x-splide-slide {{  preload_slide_class }}{% endif %} relative">
+                            <div>
+                              <div class="relative{% if section.settings.edges_type == 'rounded_corners' %} rounded-[10px] overflow-hidden{% endif %}{% unless media_aspect_ratio == "natural" %} pb-[{{ ratio }}%]{% endunless %}"> 
+                                {% render 'otsb-icon-placeholder', icon: 'icon-product', class: 'bg-[#c9c9c9] absolute top-0 left-0 w-full h-full' %}
+                              </div>
+                              <div class="pt-4 pb-4 text-{{ section.settings.info_alignment_card_product }}">
+                                <p class="leading-tight mb-2">
+                                  Example product
+                                </p>
+                                <p class="text-[{{ settings.text_base_size | times: 0.007875 }}rem] md:text-[{{ settings.text_base_size | times: 0.00875 }}rem]">
+                                  {% if settings.currency_code_enable %}
+                                    {{ 3000 | money_with_currency }}
+                                  {% else %}
+                                    {{ 3000 | money }}
+                                  {% endif %}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        {%- endfor -%}
+                      {%- endfor -%}
+                    </div>
+                  </div>
+                  {%- if enable_desktop_slider and section.settings.slider_style != "vertical" -%}
+                    <div class="{% if enable_desktop_slider and section.settings.slider_style != "vertical" %} md:flex{% else %} md:hidden{% endif %} items-center otsb-hidden gap-5 my-5 splide-progress-final mr-auto">
+                      <div class="splide-progress inline-block grow rounded-md">
+                        {% liquid
+                          assign my_float = columns_desktop | times: 1.0
+                          assign width_bar = my_float | divided_by: progress_bar                       
+                          assign mobile_float = columns_mobile | times: 1.0
+                          assign mobile_width_bar = mobile_float | divided_by: progress_bar 
+                        %} 
+                        {%- style -%}
+                          #shopify-section-{{ section.id }} .splide-progress-bar.__{{ block.id }} { 
+                            width: {{ mobile_width_bar | times: 100 }}%;
+                            display: block;
+                          }
+                          @media (min-width: 768px) {
+                            #shopify-section-{{ section.id }} .splide-progress-bar.__{{ block.id }} {
+                              width: {{ width_bar | times: 100 }}%;
+                            }
+                          }
+                        {%- endstyle -%}
+                        <div class="__{{ block.id }} splide-progress-bar rounded-md"></div>
+                      </div>
+                    </div>
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+          {% comment %} </template> {% endcomment %}
+        </div>
+        {% comment %} </div> {% endcomment %}
+      </div>
+      {% comment %} {% if section.blocks.size == 1 %}</div>{% endif %} {% endcomment %}
+    {%- endpaginate %}
+  </div>
+</div>
+{%- capture unminified_css -%}
+  {%- style -%}
+  {{ global_css }}
+  {%- endstyle -%}
+{%- endcapture -%}
+{%- assign styles =  unminified_css | strip_newlines | split: " " | join: " " | split: "*/" -%}
+{%- assign minified_style = "" -%}
+{%- for word in styles -%}
+{%- assign new_word = word | split: "/*" | first | strip | replace: "; ", ";" | replace: "} ", "}" | replace: "{ ", "{" | replace: " {", "{" -%}
+  {%- assign minified_style = minified_style | append: new_word -%}
+{%- endfor -%}
+
+{{- minified_style  }}
+<script src="{{ 'otsb-preview-color-swatches.min.js' | asset_url }}" defer></script>
+<script src="{{ 'otsb-product-cart.min.js' | asset_url }}" defer></script>
+<script src="{{ 'otsb-variant-select.min.js' | asset_url }}" defer></script>
+

@@ -1,0 +1,116 @@
+{% liquid
+  assign max_height_mobile = "50px"
+  assign max_height_desktop = "70px"
+  if number_of_lines_shown == "large"
+    assign max_height_mobile = "130px"
+    assign max_height_desktop = "150px"
+  elsif number_of_lines_shown == "medium"
+    assign max_height_mobile = "90px"
+    assign max_height_desktop = "100px"
+  endif
+%}
+{%- if number_of_lines_shown == 'small' or number_of_lines_shown == 'medium' or number_of_lines_shown == 'large' -%}
+  {%- capture styles -%}
+    {%- style -%}
+    .truncate-container .otsb-rte li p {
+      display: inline;
+    }
+    .truncate-container .truncate-inner *:last-child {
+      margin-bottom: 0;
+    }
+    .truncate-container .truncate-inner *:first-child {
+      margin-top: 0;
+    }
+    .truncate-container {
+      margin-bottom: calc(1em + 1.5rem);
+      position: relative;
+    }
+    .truncate-container[area-expanded="true"] {
+      margin-bottom:calc(1em + 2.5rem)
+    }
+    .truncate-container button {
+      line-height: 1;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .truncate-text-{{blockID}}.truncate-expanded {
+      max-height: var(--truncate-height-expanded, auto);
+      box-shadow: none;
+      transition: all 0.3sease;
+    }
+    .otsb__root .truncate-text-{{blockID}} .gradient {
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(var(--colors-text), 0), rgb(var(--background-color)));
+    }
+    .line-clamp-{{ blockID }} {
+      max-height: {{ max_height_mobile }};
+    }
+    button.__act-btn {overflow:hidden;transition: all 0.3s ease}
+    .__act-btn span {
+      transition: all 0.3s ease;
+      display:inline-block;
+    }
+    .__act-btn .__see-less-label {
+      position: absolute;
+      top: 0.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(calc(-1em - 0.5rem));
+      width: 100%;
+    }
+    .__act-btn[x-truncated="false"] {
+      transform: translate(-50%, 0);
+    }
+    .__act-btn[x-truncated="false"] .__see-less-label {
+      transform: translateX(-50%);
+    }
+    .__act-btn[x-truncated="false"] span:nth-child(1) {
+      transform: translateY(calc(100% + 0.5rem));
+    }
+    @media (min-width: 1024px) {
+      .line-clamp-{{ blockID }} {
+        max-height: {{ max_height_desktop }};
+      }
+    }
+  {%- endstyle -%}
+  {%- endcapture -%}
+
+  {%- assign styles =  styles | strip_newlines | split: " " | join: " " | split: "*/" -%}
+  {%- assign minified_style = "" -%}
+  {%- for word in styles -%}
+  {%- assign new_word = word | split: "/*" | first | strip | replace: "; ", ";" | replace: "} ", "}" | replace: "{ ", "{" | replace: " {", "{" -%}
+    {%- assign minified_style = minified_style | append: new_word -%}
+  {%- endfor -%}
+
+  {{- minified_style  }}
+  <div class="truncate-container ltr" x-data="xTruncateTextNew" :area-expanded="expanded ? 'true' : 'false'">
+    <div
+        class="truncate-text truncate-text-{{blockID}} relative {{ class_truncate_text }} line-clamp-{{ blockID }} overflow-hidden"
+        x-intersect.once="$nextTick(() => { setTruncate($el); load($el) })"
+      >
+      <div class="text-truncate truncate-inner relative otsb-rte {% if is_rtl %} rtl{% endif %}"
+      >
+        {{ content | replace: '<iframe ', '<iframe loading="lazy" ' }}
+      </div>
+
+      <div class="{% if gradient_style == 'secondary' %}gradient-secondary {% else %}gradient {% endif %}" style="display:block" :style="{display: expanded ? 'none' : 'block' }" :class="expanded ? 'otsb-hidden' : 'block'"></div>
+    </div>
+    {%- liquid
+      assign escaped_read_more_label = read_more_label | replace: "'", "&#39;"
+      assign escaped_see_less_label = see_less_label | replace: "'", "&#39;"
+      assign escaped_quick_view = quick_view | replace: "'", "&#39;"
+      -%}
+    <button class="__act-btn button-link effect-inline inline py-2" x-truncated="true" :x-truncated="truncated ? 'true' : 'false'" @click.prevent="truncated ? open($el, '{{ escaped_see_less_label | escape }}') : close($el, '{{ escaped_read_more_label | escape }}', '{{ escaped_quick_view | escape }}');">
+      {% comment %}  x-init="label = `{{ read_more_label | escape }}`" x-transition @click.prevent="truncated ? open($el, `{{ see_less_label | escape }}`) : close($el, `{{ read_more_label | escape }}`, '{{ quick_view }}');" x-text="label" {% endcomment %}
+      <span>{{ escaped_read_more_label }}</span>
+      <span class="__see-less-label">{{ escaped_see_less_label }}</span>
+    </button>
+  </div>
+{% else %}
+  <div class="otsb- rte">{{ content | replace: '<iframe ', '<iframe loading="lazy" ' }}</div>
+{% endif %}

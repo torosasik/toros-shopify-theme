@@ -1,0 +1,522 @@
+{%- liquid
+  if section.settings.desktop_image_width == 'medium'
+    assign iwt_content = 'md:w-1/2'
+    assign iwt_image = 'md:w-1/2'
+  else
+    assign iwt_content = 'md:w-1/3'
+    assign iwt_image = 'md:w-2/3'
+  endif
+  assign border_image = section.settings.image_corner_radius | minus: 1
+
+  assign video_alt = section.settings.video_alt_text
+  if section.settings.video_url.type == 'youtube'
+    assign video_type = 'youtube'
+    assign video_id = section.settings.video_url.id
+  endif
+  if section.settings.video_url.type == 'vimeo'
+    assign video_type = 'vimeo'
+    assign video_id = section.settings.video_url.id
+  endif
+
+  if section.settings.video != null
+    assign video_type = 'video_select'
+  endif
+  if section.settings.image != blank
+    assign cover_img = section.settings.image
+  endif
+  if section.settings.image == blank and section.settings.image_second != blank
+    assign cover_img = section.settings.image_second
+  endif
+-%}
+{%- style -%}
+  .iwt--{{ section.id }} {
+  {% if section.settings.background_color_light.alpha != 0.0 %}
+      background: {{ section.settings.background_color_light }};
+  {% else %}
+      background: rgb(var(--color-background));
+  {% endif %}
+  }
+  .dark .iwt--{{ section.id }} {
+  {% if section.settings.background_color_dark.alpha != 0.0 %}
+      background: {{ section.settings.background_color_dark }};
+  {% else %}
+      background: rgb(var(--colors-background-secondary, 246, 246, 246));
+  {% endif %}
+  }
+  {%- if section.settings.image != blank -%}
+      .mobile-{{ section.id }}-natural {
+      padding-bottom: {{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100 }}%;
+      }
+  {%- endif -%}
+  .border-radius-{{ section.id }} {
+  border-radius: {{ border_image }}px;
+  }
+  #shopify-section-{{ section.id }} {
+    --image-treatment-text: {{ section.settings.video_icon.red }}, {{ section.settings.video_icon.green }}, {{ section.settings.video_icon.blue }}
+  }
+  @media screen and (min-width: 768px) {
+  {%- if section.settings.image != blank -%}
+      .desktop-{{ section.id }}-natural {
+      padding-bottom: {{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100 }}%;
+      }
+  {%- endif -%}
+  }
+{%- endstyle -%}
+{% if request.design_mode %}
+  <style>
+    .otsb_nope {
+        display: none !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        opacity: 0 !important;
+    }
+    ._otsb_warning {
+        position: relative;
+        box-shadow: 0rem 0.1875rem 0.0625rem -0.0625rem rgba(26, 26, 26, 0.07);
+        border-radius: 1rem;
+    }
+    ._otsb_warning::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 0;
+        box-shadow: 0.0625rem 0rem 0rem 0rem rgba(0, 0, 0, 0.13) inset, -0.0625rem 0rem 0rem 0rem rgba(0, 0, 0, 0.13) inset, 0rem -0.0625rem 0rem 0rem rgba(0, 0, 0, 0.17) inset, 0rem 0.0625rem 0rem 0rem rgba(204, 204, 204, 0.5) inset;
+        border-radius: 1rem;
+        pointer-events: none;
+        mix-blend-mode: luminosity;
+    }
+  </style>
+  <div x-data="otsb_script_require" class="page-width" style="margin-top: 36px; margin-bottom: 36px;">
+    <div class="_otsb_warning">
+      <div style="border-top-left-radius: 1rem; border-top-right-radius: 1rem; border: 1px solid #fcaf0a; background: #fcb827; padding: 1rem;">
+        <div style="align-items: center; gap: 8px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between;">
+          <div style="display: flex; gap: 4px; flex-direction: row; flex-wrap: nowrap; justify-content: space-between;">
+            <span style="display: block; height: 20px; width: 20px; max-height: 100%; max-width: 100%; margin: auto;">
+              <svg viewBox="0 0 20 20" class="Polaris-Icon__Svg" focusable="false" aria-hidden="true">
+                <path d="M10 6.75a.75.75 0 0 1 .75.75v3.5a.75.75 0 1 1-1.5 0v-3.5a.75.75 0 0 1 .75-.75Z"></path>
+                <path d="M11 13.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path>
+                <path
+                    fill-rule="evenodd"
+                    d="M10 3.5c-1.045 0-1.784.702-2.152 1.447a449.26 449.26 0 0 1-2.005 3.847l-.028.052a403.426 403.426 0 0 0-2.008 3.856c-.372.752-.478 1.75.093 2.614.57.863 1.542 1.184 2.464 1.184h7.272c.922 0 1.895-.32 2.464-1.184.57-.864.465-1.862.093-2.614-.21-.424-1.113-2.147-2.004-3.847l-.032-.061a429.497 429.497 0 0 1-2.005-3.847c-.368-.745-1.107-1.447-2.152-1.447Zm-.808 2.112c.404-.816 1.212-.816 1.616 0 .202.409 1.112 2.145 2.022 3.88a418.904 418.904 0 0 1 2.018 3.875c.404.817 0 1.633-1.212 1.633h-7.272c-1.212 0-1.617-.816-1.212-1.633.202-.408 1.113-2.147 2.023-3.883a421.932 421.932 0 0 0 2.017-3.872Z"
+                ></path>
+              </svg>
+            </span>
+            <h2 style="overflow-wrap: anywhere; word-break: normal; font-size: 100%; font-weight: 650; line-height: 1.25; color: rgb(37, 26, 0);">
+              App Embeds Are Disabled
+            </h2>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 1rem; color: rgb(37, 26, 0);">
+        <p>
+          To use this section, the app embeds of OT: Theme Sections must be enabled in the theme editor. Please follow
+          these steps to activate them:
+        </p>
+        <ul>
+          <li>In the left panel, click the last icon that says <b>“App embeds”</b>.</li>
+          <li>Enter <b>“OT”</b> on the search bar to quickly find and embed the apps from OT: Theme Sections.</li>
+          <li>
+            Turn on the Toggle buttons of "Section Builder Script" and "Section Builder Style", then click <b>Save</b>.
+          </li>
+        </ul>
+        <p>
+          Please refer to the User Guide
+          <a
+            href="https://support.omnithemes.com/blogs/ot-theme-sections-get-started/1-embed-app-to-shopify-theme"
+            target="_blank"
+            >here</a
+          >
+        </p>
+        <p>
+          For further support: feel free to contact us at
+          <a href="mailto:support@omnithemes.com">support@omnithemes.com</a>!
+        </p>
+      </div>
+    </div>
+  </div>
+{% endif %}
+<div class="otsb__root otsb_nope" x-data="otsb_script_1">
+  <div class="otsb-ltr pt-[{{ section.settings.top_padding_mobile }}px] md:pt-[{{ section.settings.top_padding }}px] pb-[{{ section.settings.bottom_padding_mobile }}px] md:pb-[{{ section.settings.bottom_padding }}px]{% if section.settings.full_width %} md:pl-0 md:pr-0{% else %} otsb-page-width{% endif %}{% if section.settings.full_width_mobile %} otsb-full-width-mobile{% else %} pr-5 pl-5{% endif %}">
+    <div class="otsb-image-with-text text-[rgb(var(--colors-text))] otsb-desktop-{{ section.settings.desktop_image_width }} otsb-image-position-mobile-{{ section.settings.image_alignment_mobile }} otsb-image-position-{{ section.settings.image_alignment }} border-radius-{{ section.id }} {{ section.settings.image_layout }}{% if section.settings.content_layout != "overlap" %} iwt--{{ section.id }}{% endif %}">
+      {%- liquid
+        assign classes_one_base = 'otsb-iwt-image ' | append: iwt_image | append: ' promotion w-full flex'
+        assign classes_two_base = 'relative w-full'
+        assign classes_three_base = 'flex w-full h-full'
+        if section.settings.content_layout == 'overlap'
+          assign classes_one_base = classes_one_base | append: ' self-' | append: section.settings.text_position
+        endif
+        if video_type
+          assign classes_one_base = classes_one_base | append: ' items-center'
+          assign classes_two_base = classes_two_base | append: ' h-0 pb-[56.25%]'
+          assign classes_three_base = classes_three_base | append: ' absolute top-0 left-0 items-center'
+        else
+          assign classes_two_base = classes_two_base | append: ' promotion md:h-auto min-h-[100%]'
+          if section.settings.desktop_height == 'natural'
+            if section.settings.image != blank
+              assign classes_two_base = classes_two_base | append: ' md:h-0 desktop-' | append: section.id | append: '-natural'
+            else
+              assign classes_two_base = classes_two_base | append: ' md:promotion:h-[650px]'
+            endif
+            assign classes_three_base = classes_three_base | append: ' md:absolute md:top-0 md:left-0 md:bottom-0'
+          else
+            assign classes_two_base = classes_two_base | append: ' md:promotion:h-[' | append: section.settings.desktop_height | append: '] md:promotion:pb-0'
+            assign classes_three_base = classes_three_base | append: ' md:promotion:relative'
+          endif
+          if section.settings.mobile_height == 'natural'
+            if section.settings.image != blank
+              assign classes_two_base = classes_two_base | append: ' h-0 mobile-' | append: section.id | append: '-natural'
+            else
+              assign classes_two_base = classes_two_base | append: ' h-[550px]'
+            endif
+            assign classes_three_base = classes_three_base | append: ' absolute top-0 left-0 bottom-0'
+          else
+            assign classes_two_base = classes_two_base | append: ' h-[' | append: section.settings.mobile_height | append: '] md:h-auto'
+            assign classes_three_base = classes_three_base | append: ' relative'
+          endif
+          if section.settings.spacing_image
+            assign classes_three_base = classes_three_base | append: ' gap-x-1'
+          endif
+        endif
+      -%}
+      <div class="{{ classes_one_base }}">
+        <div class="{{ classes_two_base }}">
+          <div class="{{ classes_three_base }}">
+            {% if video_type %}
+              <div class="relative otsb-external-video h-full w-full rounded-none overflow-hidden{% if section.settings.enable_video_autoplay %} otsb-video-hero{% endif %} hover:h-full" 
+              x-intersect:leave="$store.xVideo.pause($el)"
+              {% if section.settings.enable_video_autoplay %}
+                @click.stop="$store.xVideo.togglePlay($el)"
+                {% if video_type == 'video_select' %}x-intersect="$store.xVideo.play($el)"{% endif %}
+                {% if video_type == 'youtube' or video_type == 'vimeo' %}
+                  x-intersect.once="$store.xVideo.externalLoad($el, '{{ video_type }}', '{{ video_id }}', false, '{{ video_alt }}')"
+                  x-intersect="$store.xVideo.play($el)"
+                {% endif %}
+              {% else %}
+                {% if video_type == 'video_select' %}@click.prevent="$store.xVideo.mp4Thumbnail($el)"{% endif %}
+                {% if video_type == 'youtube' or video_type == 'vimeo' %}@click.prevent="$store.xVideo.externalLoad($el, '{{ video_type }}', '{{ video_id }}', false, '{{ video_alt }}')"{% endif %}
+              {% endif %}
+            >
+              {%- render 'otsb-media-video', 
+                enable_video_autoplay: section.settings.enable_video_autoplay,
+                video_type: video_type,
+                video_id: video_id,
+                video_alt: video_alt,
+                video: section.settings.video,
+                columns_desktop: 2,
+                cover_image: cover_img,
+                show_sound_control: true,
+                show_hero: section.settings.show_hero,
+              -%}
+            </div>
+            {% else %}
+              {% if section.settings.image != blank %}
+                <div class="border-radius-{{ section.id }} w-full overflow-hidden{% if section.settings.image_layout == "stacked" and section.settings.image_second != blank %} !h-[calc(100%-2rem)] md:!h-[calc(100%-5rem)]{% else %} h-full{% endif %}">
+                  <parallax-image class="block h-full w-full">
+                    <parallax-movement
+                      {% if section.settings.disable_parallax_effect == false %}
+                      x-data="xParallax"
+                      x-intersect.once.margin.200px="load(false)"
+                      {% endif %}
+                    >
+                      <picture>
+                        <source
+                          srcset="
+                            {{ section.settings.image | image_url: width: 450 }} 450w,
+                            {{ section.settings.image | image_url: width: 750 }} 750w,
+                            {{ section.settings.image | image_url: width: 750 }} 750w,
+                            {{ section.settings.image | image_url: width: 750 }} 750w,
+                            {{ section.settings.image | image_url: width: 900 }} 900w,
+                            {{ section.settings.image | image_url: width: 1100 }} 1100w,
+                            {{ section.settings.image | image_url: width: 1500 }} 1500w,
+                            {{ section.settings.image | image_url }} {{ section.settings.image.width }}w
+                          "
+                          sizes="(min-width: 1024px){% if section.settings.full_width %} 50vw{% elsif settings.page_width != blank %} {{ settings.page_width | divided_by: 2 }}px {% else %} 50vw {% endif %}, (min-width: 768px) 50vw, 100vw"
+                        >
+                        <img
+                          class="h-full w-full object-cover border-radius-{{ section.id }}"
+                          src="{{ section.settings.image | image_url: width: 1500 }}"
+                          alt="{{ section.settings.image.alt | escape }}"
+                          loading="{% if section.settings.is_lazyload %}lazy{%  else %}eager{% endif %}"
+                          width="{{ section.settings.image.width }}"
+                          height="{{ section.settings.image.height }}"
+                          style="object-position: {{ section.settings.image.presentation.focal_point }}"
+                        >
+                      </picture>
+                    </parallax-movement>
+                  </parallax-image>
+                </div>
+              {% endif %}
+              {% if section.settings.image_second != blank %}
+                <div class="border-radius-{{ section.id }} h-full w-full overflow-hidden{% if section.settings.image_layout == "stacked" and section.settings.image != blank %} mt-8 md:mt-20 !h-[calc(100%-2rem)] md:!h-[calc(100%-5rem)]{% else %} h-full{% endif %}">
+                  <parallax-image class="block h-full w-full">
+                    <parallax-movement
+                      {% if section.settings.disable_parallax_effect == false %}
+                      x-data="xParallax"
+                      x-intersect.once.margin.200px="load(false)"
+                      {% endif %}
+                    >
+                      <picture>
+                        <source
+                          srcset="
+                            {{ section.settings.image_second | image_url: width: 450 }} 450w,
+                            {{ section.settings.image_second | image_url: width: 750 }} 750w,
+                            {{ section.settings.image_second | image_url: width: 900 }} 900w,
+                            {{ section.settings.image_second | image_url: width: 1100 }} 1100w,
+                            {{ section.settings.image_second | image_url: width: 1500 }} 1500w,
+                            {{ section.settings.image_second | image_url }} {{ section.settings.image_second.width }}w
+                          "
+                          sizes="(min-width: 1024px){% if section.settings.full_width %} 50vw{% elsif settings.page_width != blank %} {{ settings.page_width | divided_by: 2 }}px {% else %} 50vw {% endif %}, (min-width: 768px) 50vw, 100vw"
+                        >
+                        <img
+                          class="img2 h-full w-full object-cover border-radius-{{ section.id }}"
+                          src="{{ section.settings.image_second | image_url: width: 1500 }}"
+                          alt="{{ section.settings.image_second.alt | escape }}"
+                          loading="lazy"
+                          width="{{ section.settings.image_second.width }}"
+                          height="{{ section.settings.image_second.height }}"
+                          style="object-position: {{ section.settings.image_second.presentation.focal_point }}"
+                        >
+                      </picture>
+                    </parallax-movement>
+                  </parallax-image>
+                </div>
+              {% endif %}
+              {% if section.settings.image == blank and section.settings.image_second == blank %}
+                {%- style -%}
+                  #shopify-section-{{ section.id }} .media-with-text-placehoder {
+                      border-radius: {{ section.settings.image_corner_radius }}px
+                  }
+                {%- endstyle -%}
+                {{
+                  'image'
+                  | placeholder_svg_tag: 'media-with-text-placehoder absolute w-full h-full bg-[#C9C9C9] text-[#acacac] otsb-rounded-svg'
+                }}
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="{{ iwt_content }} w-full flex justify-center md:justify-start{% if section.settings.content_layout == "overlap" %} self-{{ section.settings.text_position }}{% else %} items-{{ section.settings.text_position }}{% endif %}{% if section.settings.image_alignment == "right" %} md:justify-end{% endif %} otsb-iwt-content-{{ section.settings.content_layout }}">
+        <div class="otsb-iwt-content otsb-iwt-{{ section.settings.content_layout }}{% unless section.settings.full_width %} md:flex-1{% endunless %}{% if section.settings.content_layout == "overlap" %} iwt--{{ section.id }} border-radius-{{ section.id }} w-11/12 md:w-full xl:w-11/12 md:max-w-2xl lg:pl-20 lg:pr-20{% else %} w-full{% endif %}">
+          {%- for block in section.blocks -%}
+            {% case block.type %}
+              {%- when 'heading' -%}
+                {%- liquid
+                  if settings.heading_base_size != blank
+                    assign base_size_heading = settings.heading_base_size | times: 0.0225
+                  else
+                    assign base_size_heading = 100 | times: 0.0225
+                  endif
+                  assign size_heading = block.settings.heading_base_size | times: 0.01 | times: base_size_heading
+                  assign size_heading_mobile = size_heading | times: 0.6
+                -%}
+                {%- style -%}
+                  .x-button-{{ block.id }} {
+                  --colors-text-link: {{ block.settings.color_text_link.red }}, {{ block.settings.color_text_link.green }}, {{ block.settings.color_text_link.blue }};
+                  }
+                  .otsb__root .otsb-h2.heading-size--{{ block.id }} {
+                  font-size: {{ size_heading_mobile }}rem;
+                  }
+                  .color-text-{{ block.id }} {
+                  --colors-text-link: {{ block.settings.color_text_link.red }}, {{ block.settings.color_text_link.green }}, {{ block.settings.color_text_link.blue }};
+                  {% if block.settings.heading_light.alpha != 0.0 %}
+                      --colors-heading: {{ block.settings.heading_light.red }}, {{ block.settings.heading_light.green }}, {{ block.settings.heading_light.blue }};
+                  {% endif %}
+                  {% if block.settings.text_light.alpha != 0.0 %}
+                      --colors-text: {{ block.settings.text_light.red }}, {{ block.settings.text_light.green }}, {{ block.settings.text_light.blue }};
+                  {% endif %}
+                  }
+                  .dark .color-text-{{ block.id }} {
+                  {% if block.settings.heading_dark.alpha != 0.0 %}
+                      --colors-heading: {{ block.settings.heading_dark.red }}, {{ block.settings.heading_dark.green }}, {{ block.settings.heading_dark.blue }};
+                  {% else %}
+                      --colors-heading: var(--colors-heading-secondary);
+                  {% endif %}
+                  {% if block.settings.text_dark.alpha != 0.0 %}
+                      --colors-text: {{ block.settings.text_dark.red }}, {{ block.settings.text_dark.green }}, {{ block.settings.text_dark.blue }};
+                  {% else %}
+                      --colors-text: var(--colors-text-secondary);
+                  {% endif %}
+                  }
+                  @media (min-width: 768px) {
+                  .otsb__root .otsb-h2.heading-size--{{ block.id }} {
+                  font-size: {{ size_heading }}rem;
+                  }
+                  }
+                  .color-text-{{ block.id }} {
+                  --h1-font-size: calc(var(--font-heading-scale) * 4rem);
+                  --h2-font-size: calc(var(--font-heading-scale) * 2.4rem);
+                  --h3-font-size: calc(var(--font-heading-scale) * 1.8rem);
+                  --h4-font-size: calc(var(--font-heading-scale) * 1.5rem);
+                  --h5-font-size: calc(var(--font-heading-scale) * 1.3rem);
+                  --h6-font-size: calc(var(--font-heading-scale) * 1.1rem);
+
+                  --h1-font-size-mobile: calc(var(--font-heading-scale) * 3rem);
+                  --h2-font-size-mobile: calc(var(--font-heading-scale) * 2rem);
+                  --h3-font-size-mobile: calc(var(--font-heading-scale) * 1.7rem);
+                  --h4-font-size-mobile: calc(var(--font-heading-scale) * 1.5rem);
+                  --h5-font-size-mobile: calc(var(--font-heading-scale) * 1.2rem);
+                  --h6-font-size-mobile: calc(var(--font-heading-scale) * 1.1rem);
+                  }
+                {%- endstyle -%}
+                <div
+                  class="color-text-{{ block.id }} text-[rgb(var(--colors-text))] w-full mt-4 text-{{ section.settings.text_alignment }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {% if block.settings.subheading != blank %}
+                    <p class="font-medium">{{ block.settings.subheading | escape }}</p>
+                  {% endif %}
+                  {% if block.settings.heading != blank %}
+                    <{{ block.settings.heading_tag }} class="heading-size--{{ block.id }} otsb-h2 block mt-2 mb-1.5 md:mt-2.5 md:mb-3">
+                      {{ block.settings.heading | escape }}
+                    </{{ block.settings.heading_tag }}>
+                  {% endif %}
+                  {% if block.settings.text != blank %}
+                    {%- render 'otsb-truncate-text',
+                      number_of_lines_shown: block.settings.number_of_lines_shown,
+                      blockID: block.id,
+                      content: block.settings.text,
+                      read_more_label: block.settings.read_more_label,
+                      text_alignment_mobile: section.settings.heading_alignment,
+                      text_alignment: section.settings.heading_alignment
+                    -%}
+                  {% endif %}
+                </div>
+              {%- when 'button' -%}
+                {%- if block.settings.button_label != blank -%}
+                  {%- style -%}
+                    #shopify-section-{{ section.id }} button.otsb-button-outline, #shopify-section-{{ section.id }} .otsb-button.otsb-button-outline {
+                    {% if block.settings.secondary_button_text_light.alpha != 0.0 %}
+                        --colors-secondary-button: {{ block.settings.secondary_button_text_light.red }}, {{ block.settings.secondary_button_text_light.green }}, {{ block.settings.secondary_button_text_light.blue }};
+                        --colors-line-secondary-button: {{ block.settings.secondary_button_text_light.red }}, {{ block.settings.secondary_button_text_light.green }}, {{ block.settings.secondary_button_text_light.blue }};
+                        --background-secondary-button: transparent;
+                    {% else %}
+                        --colors-secondary-button: var(--color-link);
+                        --colors-line-secondary-button: var(--color-link);
+                    {% endif %}
+                    {% if block.settings.secondary_button_light.alpha != 0.0 %}
+                        --background-secondary-button: {{ block.settings.secondary_button_light.red }}, {{ block.settings.secondary_button_light.green }}, {{ block.settings.secondary_button_light.blue }};
+                        --colors-line-secondary-button: {{ block.settings.secondary_button_light.red }}, {{ block.settings.secondary_button_light.green }}, {{ block.settings.secondary_button_light.blue }};
+                    {% endif %}
+                    }
+                    #shopify-section-{{ section.id }} .otsb-button.button-{{ block.id }}, #shopify-section-{{ section.id }} .otsb-button.button-{{ block.id }} *:before {
+                    {% if block.settings.button_color_mobile != "hover" %}
+                        --color-button-mobile: var(--color-button);
+                        --color-button-text-mobile: rgb(var(--color-button-text));
+                    {% else %}
+                        --color-button-mobile: var(--colors-button-hover);
+                        --color-button-text-mobile: rgb(var(--colors-button-text-hover));
+                    {% endif %}
+
+                    {% if block.settings.button_light.alpha != 0.0 %}
+                        --color-button: {{ block.settings.button_light.red }}, {{ block.settings.button_light.green }}, {{ block.settings.button_light.blue }};
+                    {% endif %}
+                    {% if block.settings.button_text_light.alpha != 0.0 %}
+                        --color-button-text: {{ block.settings.button_text_light.red }}, {{ block.settings.button_text_light.green }}, {{ block.settings.button_text_light.blue }};
+                    {% endif %}
+                    {% if block.settings.button_hover_light.alpha != 0.0 %}
+                        --colors-button-hover: {{ block.settings.button_hover_light.red }}, {{ block.settings.button_hover_light.green }}, {{ block.settings.button_hover_light.blue }};
+                    {% else %}
+                        --colors-button-hover: var(--color-button);
+                    {% endif %}
+                    {% if block.settings.button_text_hover_light.alpha != 0.0 %}
+                        --colors-button-text-hover: {{ block.settings.button_text_hover_light.red }}, {{ block.settings.button_text_hover_light.green }}, {{ block.settings.button_text_hover_light.blue }};
+                    {% else %}
+                        --colors-button-text-hover: var(--color-button-text);
+                    {% endif %}
+                    {% if block.settings.secondary_button_text_light.alpha != 0.0 %}
+                        --colors-secondary-button: {{ block.settings.secondary_button_text_light.red }}, {{ block.settings.secondary_button_text_light.green }}, {{ block.settings.secondary_button_text_light.blue }};
+                        --colors-line-secondary-button: {{ block.settings.secondary_button_text_light.red }}, {{ block.settings.secondary_button_text_light.green }}, {{ block.settings.secondary_button_text_light.blue }};
+                        --background-secondary-button: transparent;
+                    {% else %}
+                        --colors-secondary-button: var(--color-link);
+                        --colors-line-secondary-button: var(--color-link);
+                    {% endif %}
+                    {% if block.settings.secondary_button_light.alpha != 0.0 %}
+                        --background-secondary-button: {{ block.settings.secondary_button_light.red }}, {{ block.settings.secondary_button_light.green }}, {{ block.settings.secondary_button_light.blue }};
+                        --colors-line-secondary-button: {{ block.settings.secondary_button_light.red }}, {{ block.settings.secondary_button_light.green }}, {{ block.settings.secondary_button_light.blue }};
+                    {% endif %}
+                    }
+                    .otsb__root .otsb-btn.otsb-btn-square {
+                        border-radius: 0px;
+                    }
+                    .otsb__root .otsb-button.otsb-btn.x-button-{{ block.id }} {
+                        justify-content: {{ section.settings.text_alignment }};
+                    }
+                    .otsb__root .cursor-not-allowed {
+                        cursor: not-allowed;
+                    }
+                  {%- endstyle -%}
+                  <div
+                    {% if forloop.index != 1 %}
+                      class="otsb-button otsb-btn x-button-{{ block.id }} button-{{ block.id }} flex justify-{{ section.settings.text_alignment }} mt-4 mb-9 md:mt-8 md:mb-4"
+                    {% endif %}
+                    {{ block.shopify_attributes }}
+                  >
+                    {%- liquid
+                      assign main_button_classes = ''
+                      if block.settings.button_primary
+                        assign main_button_classes = main_button_classes | append: ' otsb-btn__solid'
+                      else
+                        assign main_button_classes = main_button_classes | append: ' otsb-button-outline'
+                      endif
+
+                      case block.settings.button_type
+                        when 'square'
+                          assign main_button_classes = main_button_classes | append: ' otsb-btn-square'
+                        when 'rounded'
+                          assign main_button_classes = main_button_classes | append: ' otsb-btn-rounded'
+                        when 'rounded_corners'
+                          assign main_button_classes = main_button_classes | append: ' otsb-btn-rounded-corners'
+                        when 'mixed'
+                          assign main_button_classes = main_button_classes | append: ' otsb-btn-mixed'
+                      endcase
+                      case block.settings.button_animation
+                        when 'slide'
+                          assign main_button_classes = main_button_classes | append: ' otsb-btn__slide'
+                        when 'fill_up'
+                          assign main_button_classes = main_button_classes | append: ' otsb-btn__fill_up'
+                        when 'underline'
+                          assign main_button_classes = main_button_classes | append: ' otsb-btn__underline'
+                        when 'sliced'
+                          assign main_button_classes = main_button_classes | append: ' otsb-btn__sliced'
+                      endcase
+                      if section.settings.content_position == 'top-left'
+                        assign main_button_classes = main_button_classes | append: ' md:w-full'
+                      endif
+                    -%}
+                    <a
+                      class="otsb-button otsb-btn leading-normal pl-6 pr-6 pt-2.5 pb-2.5 md:pl-8 md:pr-8 md:pt-3 md:pb-3 cursor-pointer inline-flex text-center justify-center items-center empty:otsb-hidden pointer-events-auto {{ main_button_classes }} {%  unless block.settings.button_link %} cursor-not-allowed {% endunless %}"
+                      {%- if block.settings.button_link -%}
+                        href="{{ block.settings.button_link }}"
+                      {%- endif -%}
+                      {%- if block.settings.open_new_window and block.settings.button_link -%}
+                        target="_blank"
+                      {% endif %}
+                    >
+                      {%- if block.settings.button_label != blank -%}
+                        {% assign button_label = block.settings.button_label %}
+                      {% else %}
+                        {% assign button_label = 'Get Directions' %}
+                      {% endif -%}
+                      {% render 'otsb-button-label',
+                        button_animation: block.settings.button_animation,
+                        button_label: button_label,
+                        show_button_primary: block.settings.button_primary,
+                        custom_icon_button: block.settings.custom_icon_button
+                      %}
+                    </a>
+                  </div>
+                {%- endif -%}
+            {% endcase %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,691 @@
+/* Modern styles for calculator popup */
+.calc_pop_up {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100000;
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+
+/* Fix "White Frame" by forcing transparency on parent wrappers */
+.calc_pop_up .pop_up-content,
+.calc_pop_up .fancybox-skin,
+.calc_pop_up .fancybox-outer,
+.calc_pop_up .fancybox-inner {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.calc_pop_up-open {
+  display: flex;
+}
+
+.tile-calculator-wrapper {
+  /* GLASSMORPHISM EFFECT */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  width: 100%;
+  max-width: 360px;
+  border-radius: 24px;
+  padding: 0 !important;
+  position: relative;
+  /* PREMIUM SHADOW */
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: "New York", serif !important;
+  /* SMOOTH ENTRY ANIMATION */
+  animation: popupEnter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+@keyframes popupEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* VALUE UPDATE PULSE ANIMATION */
+@keyframes valuePulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+    color: #1C4170;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse-update {
+  animation: valuePulse 0.4s ease-out;
+}
+
+/* HEADER - GRADIENT DESIGN */
+.heading {
+  /* PREMIUM SOLID HEADER (Matching Overage Reminder) */
+  background: #1C4170 !important;
+  color: #fff;
+  padding: 12px 16px 10px;
+  /* Reduced padding */
+  text-align: center;
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 20px 20px 0 0 !important;
+  /* Slightly smaller radius */
+  overflow: hidden;
+  /* CLEAN SHADOW */
+  box-shadow: 0 4px 20px rgba(28, 65, 112, 0.25);
+}
+
+/* Animation Removed */
+
+.heading .title {
+  font-style: normal !important;
+  /* Fixed: Was italic, now normal */
+  color: #FFFFFF !important;
+  font-family: "New York", serif;
+  display: block;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  line-height: 1.3;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+.heading .subtitle {
+  font-style: italic;
+  color: #FFFFFF !important;
+  font-family: "New York", serif;
+  margin: 0;
+  line-height: 1.2;
+  font-size: 13px !important;
+  display: none !important;
+  /* Hide "Add overage..." subtitle */
+}
+
+.productInfo-popup-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 10;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-circle {
+  width: 100%;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 300;
+  line-height: 1;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  transition: all 0.2s;
+  box-shadow: none;
+}
+
+.close-circle:hover {
+  color: rgba(255, 255, 255, 1);
+  transform: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* BODY / CARDS */
+.tile-calculator-wrapper .tile-calculator-container {
+  padding: 8px 12px 8px !important;
+  /* Compact padding */
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px !important;
+  /* Compact gap */
+}
+
+.tile-calculator-wrapper .calc-card {
+  border: 1px solid #E2E8F0 !important;
+  /* Visual frame */
+  border-radius: 14px !important;
+  padding: 8px 10px !important;
+  /* COMPACT PADDING */
+  background: #FFFFFF !important;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+  /* More elevated */
+}
+
+.tile-calculator-wrapper .calc-card.compact {
+  padding: 10px !important;
+}
+
+/* HOVER EFFECT REMOVED PER USER REQUEST */
+/* .tile-calculator-wrapper .calc-card:hover { ... } */
+
+/* ENSURE HEADERS USE SERIF */
+.tile-calculator-wrapper h4 {
+  font-family: "New York", serif !important;
+}
+
+/* MAIN INPUT */
+.input-card {
+  border: none !important;
+  background: transparent !important;
+  margin-bottom: 0;
+}
+
+.tile-calculator-wrapper .input-card .centered-input {
+  border: 1px solid #E5E7EB !important;
+  border-radius: 12px !important;
+  background: #F9FAFB !important;
+  /* Slight contrast input bg */
+  padding: 4px 8px !important;
+  /* ULTRA COMPACT */
+  box-shadow: none;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Polish "Creepy Boxes": Remove distinct fieldset styling */
+.tile-calculator-wrapper fieldset.opt-qty-input {
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.tile-calculator-wrapper fieldset.opt-qty-input legend {
+  display: none !important;
+  /* Hide legend "Square Feet" if it looks odd */
+}
+
+.centered-input input {
+  width: 100%;
+  text-align: center;
+  border: none;
+  outline: none;
+  color: #0A1E33;
+  background: transparent;
+  padding: 0 4px;
+  box-sizing: border-box;
+  line-height: 1.2;
+  font-family: "New York", serif;
+  font-size: 22px !important;
+  /* REDUCED FROM 28px */
+  font-weight: 700 !important;
+  transition: all 0.3s ease;
+}
+
+/* INPUT FOCUS ANIMATION */
+.input-card .centered-input:focus-within {
+  border-color: #1C4170;
+  box-shadow: 0 0 0 4px rgba(28, 65, 112, 0.15), 0 4px 12px rgba(28, 65, 112, 0.1);
+  transform: scale(1.02);
+  background: #FFFFFF !important;
+}
+
+.centered-input input:focus {
+  color: #1C4170;
+}
+
+.centered-input input::placeholder {
+  color: #94A3B8;
+  font-weight: 500;
+  opacity: 1;
+}
+
+.centered-input .input-label {
+  display: block;
+  margin-top: 2px;
+  color: #334354;
+  text-align: center !important;
+  width: 100%;
+  font-family: "New York", serif;
+  font-size: 12px !important;
+  /* Reduced from 13px */
+}
+
+/* DIMENSIONS TOGGLE + INPUTS */
+.dimensions-toggle {
+  display: inline-block !important;
+  font-family: "New York", serif;
+  margin-bottom: 5px;
+}
+
+#dimensions-inputs {
+  display: block !important;
+  margin-top: 6px;
+  border-radius: 12px;
+  background: #F8F8F8;
+  border: 1px solid #D7E5E5;
+  padding: 8px;
+}
+
+#dimensions-inputs.open {
+  display: block;
+}
+
+.dimension-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.dim-field {
+  flex: 1;
+}
+
+.dim-field label {
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: #334354;
+  margin-bottom: 3px;
+  display: block;
+  font-family: "New York", serif;
+  font-size: 12px !important;
+}
+
+.dim-pair {
+  display: flex;
+  gap: 4px;
+}
+
+.dim-input-group {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid #D7E5E5;
+  border-radius: 8px;
+  background: #FFFFFF;
+  overflow: hidden;
+  min-width: 0;
+  max-width: 65px;
+}
+
+.dim-unit {
+  background: #F8F8F8;
+  padding: 4px 4px;
+  color: #334354;
+  text-transform: uppercase !important;
+  flex-shrink: 0;
+  min-width: 24px;
+  text-align: center;
+  font-family: "New York", serif;
+  font-size: 10px !important;
+}
+
+.dim-input {
+  border: none;
+  flex: 1;
+  padding: 4px 4px;
+  text-align: center;
+  color: #0A1E33 !important;
+  background: transparent !important;
+  min-width: 0;
+  width: 100%;
+  max-width: 45px;
+  font-family: "New York", serif;
+  font-size: 14px !important;
+}
+
+.dim-input:focus {
+  outline: none;
+  background: #FFFFFF !important;
+}
+
+/* OVERAGE SECTION - RESTORED */
+.ovg-overage-section,
+.calculator-section.overage-section,
+.overage-section-title {
+  display: block !important;
+}
+
+#ovg-overage-display,
+#ovg-total-display,
+.result-item:has(#ovg-overage-display),
+.result-item:has(#ovg-total-display),
+.overage-grid-inline,
+#overage-selectors,
+.recommendation-text,
+#ovg-overage-recommendation {
+  display: flex !important;
+}
+
+.overage-note {
+  display: block !important;
+}
+
+/* Hide old OVG calculator sections that are no longer needed */
+/* Keep these hidden as they might be truly legacy / duplicates */
+.ovg-manual-section,
+.ovg-info-section,
+.ovg-manual-input-wrapper {
+  display: none !important;
+}
+
+/* Legacy Hiding */
+.dimensions-section-wrapper,
+#calc-dimensions-toggle,
+.calc-dimensions-container {
+  display: none !important;
+}
+
+/* Ensure the main quantity input section is the STAR here */
+.price-attr.opt-qty-section {
+  display: block !important;
+  width: 100%;
+}
+
+/* Force hide any lingering overage remnants */
+/* Removed hiding rule */
+
+/* Ensure OVG calculator uses modern styling */
+.ovg-overage-section h4 {
+  font-family: "New York", serif !important;
+  /* All text */
+  color: #0A1E33 !important;
+  /* Headings / key numbers */
+  font-size: 14px !important;
+  font-weight: bold !important;
+  margin-bottom: 6px !important;
+  text-align: center !important;
+}
+
+/* RESULTS SECTION */
+
+.tile-calculator-wrapper .footer_outcome {
+  border-radius: 16px;
+  padding: 12px !important;
+  background: #FFFFFF !important;
+  /* White footer on grey bg */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.footer_outcome h4 {
+  display: none !important;
+  /* Hide any remaining Calculation Results heading */
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* Reduced spacing by half (from 4px to 2px) */
+}
+
+.result-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: #334354;
+  /* Text (body) */
+  line-height: 1.2;
+  margin: 0;
+  padding: 0;
+  font-family: "New York", serif;
+  /* All text */
+}
+
+.result-label {
+  color: #334354;
+  /* Text (body) */
+  font-family: "New York", serif;
+  /* All text */
+}
+
+.result-value {
+  color: #334354 !important;
+  /* Regular price text */
+  text-align: right;
+  min-width: 100px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "New York", serif;
+  /* All text */
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  /* Fixed: Ensure bold (was 600) */
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 5px;
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: none;
+}
+
+.result-value input.text-input-display {
+  border: none;
+  background: transparent;
+  text-align: right;
+  color: inherit;
+  font-weight: 700 !important;
+  /* Fixed: Ensure bold inheritance */
+  font-size: inherit;
+  font-family: inherit;
+  /* Inherit from result-value */
+  width: auto;
+  min-width: 80px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-value span {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-separator {
+  height: 1px;
+  background: #D7E5E5;
+  /* Borders / dividers */
+  border: none;
+  margin: 2px 0;
+  /* Reduced margin by half (from 4px to 2px) */
+}
+
+/* ACTIONS / BUTTON */
+
+.calculator-section.actions {
+  margin: 0 !important;
+  /* Remove any margins to use container gap */
+  padding: 0;
+}
+
+.btn-calculator {
+  width: 100%;
+  /* PREMIUM GRADIENT BUTTON */
+  background: linear-gradient(135deg, #1C4170 0%, #2D5A8E 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 10px;
+  font-family: "New York", serif;
+  /* PREMIUM SHADOW */
+  box-shadow:
+    0 8px 20px rgba(28, 65, 112, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  margin: 0 !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+/* BUTTON SHINE EFFECT */
+.btn-calculator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-calculator:hover::before {
+  left: 100%;
+}
+
+.btn-calculator:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 12px 28px rgba(28, 65, 112, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-calculator:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 4px 12px rgba(28, 65, 112, 0.3);
+}
+
+/* Hide legacy sections */
+.calculator-section.dimensions,
+.calculator-section.line-separator,
+.calculate_btn {
+  display: none !important;
+}
+
+/* Ensure legacy hidden result inputs never show */
+.tile-calculator-wrapper .ovg-results .flex-box,
+.tile-calculator-wrapper .ovg-results .calculator-section,
+.tile-calculator-wrapper .ovg-results .input-box {
+  display: none !important;
+}
+
+/* FIXED PRODUCT PAGE FIELDS (outside popup) */
+
+.input_boxes input.squared_size,
+.input_boxes input.quantity-selector-fake {
+  background-color: #f5f7fa !important;
+  color: #22324f !important;
+  border: 1px solid #d5ddeb !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+
+.input_boxes input.squared_size:focus,
+.input_boxes input.quantity-selector-fake:focus {
+  background-color: #fff !important;
+  border-color: #6b9bd1 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(107, 155, 209, 0.1) !important;
+}
+
+.container_titles {
+  color: #7a8599 !important;
+  font-size: 12px !important;
+  margin-top: 4px !important;
+}
+
+/* MOBILE TWEAKS */
+
+@media (max-width: 420px) {
+  .tile-calculator-wrapper {
+    max-width: 330px;
+    max-height: 75vh;
+    /* Even more compact on mobile */
+  }
+
+  .overage-grid-inline {
+    flex-wrap: nowrap !important;
+    /* Force single row */
+    overflow-x: auto;
+    /* Allow horizontal scroll if absolutely needed */
+    gap: 4px;
+  }
+
+  .overage-option-compact {
+    flex: 1 1 auto !important;
+    /* Share space equally */
+    min-width: 0 !important;
+    /* Allow shrinking */
+    width: auto !important;
+  }
+
+  .overage-option-compact .option-content {
+    padding: 6px 2px !important;
+    /* Very tight padding */
+  }
+
+  .overage-option-compact .option-text {
+    font-size: 13px !important;
+    /* Smaller text */
+  }
+
+  .overage-option-compact .option-desc {
+    font-size: 8px !important;
+    /* Tiny desc */
+    display: block;
+    /* Keep description */
+  }
+
+  .tile-calculator-container {
+    padding: 6px 10px 8px;
+    gap: 5px;
+  }
+
+  .tile-calculator-wrapper .heading .title {
+    font-size: 18px !important;
+    /* Keep same size on mobile */
+  }
+
+  .tile-calculator-wrapper .centered-input input {
+    font-size: 26px !important;
+  }
+}
+
+/* Add To Cart button */
+.tile-calculator-wrapper .btn-calculator {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+  font-family: "New York", serif !important;
+}

@@ -1,0 +1,613 @@
+{% render 'otsb-media-with-text-base' %}
+
+{% schema %}
+{
+  "name": "OT: Media with Text #4",
+  "class": "section section-image-with-text x-section",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer", "aside"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "First image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_second",
+      "label": "Second image"
+    },
+    {
+      "type": "header",
+      "content": "Shopify-hosted video"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video"
+    },
+    {
+      "type": "header",
+      "content": "Or embed video from url"
+    },
+    {
+      "type": "paragraph",
+      "content": "Shows when no Shopify-hosted video is selected."
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "accept": ["youtube", "vimeo"],
+      "label": "URL",
+      "info": "Supports YouTube and Vimeo."
+    },
+    {
+      "type": "text",
+      "id": "video_alt_text",
+      "label": "Video alt text"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_autoplay",
+      "default": false,
+      "label": "Enable video autoplay",
+      "info": "Video will be muted when autoplay is on."
+    },
+    {
+      "type": "select",
+      "id": "desktop_height",
+      "options": [
+        {
+          "value": "450px",
+          "label": "450px"
+        },
+        {
+          "value": "550px",
+          "label": "550px"
+        },
+        {
+          "value": "650px",
+          "label": "650px"
+        },
+        {
+          "value": "750px",
+          "label": "750px"
+        },
+        {
+          "value": "natural",
+          "label": "Adapt to first image"
+        },
+        {
+          "value": "100vh",
+          "label": "Fullscreen"
+        }
+      ],
+      "default": "550px",
+      "label": "Desktop image height"
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "options": [
+        {
+          "value": "250px",
+          "label": "250px"
+        },
+        {
+          "value": "300px",
+          "label": "300px"
+        },
+        {
+          "value": "400px",
+          "label": "400px"
+        },
+        {
+          "value": "500px",
+          "label": "500px"
+        },
+        {
+          "value": "natural",
+          "label": "Adapt to first image"
+        },
+        {
+          "value": "100vh",
+          "label": "Fullscreen"
+        }
+      ],
+      "default": "400px",
+      "label": "Mobile image height"
+    },
+    {
+      "type": "select",
+      "id": "desktop_image_width",
+      "options": [
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large",
+      "label": "Desktop image width"
+    },
+    {
+      "type": "select",
+      "id": "image_layout",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "stacked",
+          "label": "Stacked"
+        }
+      ],
+      "default": "normal",
+      "label": "Image style"
+    },
+    {
+      "type": "checkbox",
+      "id": "is_lazyload",
+      "label": "Lazy-load images",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_parallax_effect",
+      "label": "Disable parallax effect",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "image_corner_radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "label": "Corner radius",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "content_layout",
+      "options": [
+        {
+          "value": "no-overlap",
+          "label": "No overlap"
+        },
+        {
+          "value": "overlap",
+          "label": "Overlap"
+        }
+      ],
+      "default": "no-overlap",
+      "label": "Content layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "spacing_image",
+      "default": false,
+      "label": "Add spacing between images"
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "options": [
+        {
+          "value": "start",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "end",
+          "label": "Bottom"
+        }
+      ],
+      "default": "center",
+      "label": "Text position",
+      "info": "Only applies to desktop display."
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "options": [
+        {
+          "value": "start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "end",
+          "label": "Right"
+        }
+      ],
+      "default": "start",
+      "label": "Text alignment"
+    },
+    {
+      "type": "color",
+      "id": "background_color_light",
+      "default": "#FFFFFF",
+      "label": "Background color"
+    },
+    {
+      "type": "color",
+      "id": "video_icon",
+      "default": "#FFFFFF",
+      "label": "Video icon"
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "select",
+      "id": "image_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "right",
+      "label": "Image alignment"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "default": true,
+      "label": "Make section full width"
+    },
+    {
+      "type": "range",
+      "id": "top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "select",
+      "id": "image_alignment_mobile",
+      "options": [
+        {
+          "value": "left",
+          "label": "Image first"
+        },
+        {
+          "value": "right",
+          "label": "Image second"
+        }
+      ],
+      "default": "left",
+      "label": "Image alignment"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width_mobile",
+      "default": false,
+      "label": "Make section full width"
+    },
+    {
+      "type": "range",
+      "id": "top_padding_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "subheading",
+          "default": "Example subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Image with text",
+          "label": "Heading"
+        },
+        {
+          "type": "range",
+          "id": "heading_base_size",
+          "min": 50,
+          "max": 200,
+          "step": 10,
+          "unit": "%",
+          "label": "Heading size",
+          "default": 150
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "default": "h2",
+          "label": "Heading tag",
+          "options": [
+            {
+              "value": "h1",
+              "label": "H1"
+            },
+            {
+              "value": "h2",
+              "label": "H2"
+            },
+            {
+              "value": "h3",
+              "label": "H3"
+            },
+            {
+              "value": "h4",
+              "label": "H4"
+            },
+            {
+              "value": "h5",
+              "label": "H5"
+            },
+            {
+              "value": "h6",
+              "label": "H6"
+            },
+            {
+              "value": "p",
+              "label": "p"
+            }
+          ]
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+          "label": "Text"
+        },
+        {
+          "type": "number",
+          "id": "number_of_lines_shown",
+          "label": "Number of lines shown by default",
+          "info": "Number of lines shown before showing a \"Read more\" link. Leave blank or 0 to show full content."
+        },
+        {
+          "type": "text",
+          "id": "read_more_label",
+          "default": "Read more",
+          "label": "\"Read more\" label"
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "heading_light",
+          "label": "Heading",
+          "default": "#212020"
+        },
+        {
+          "type": "color",
+          "id": "text_light",
+          "label": "Text",
+          "default": "#444444"
+        },
+        {
+          "type": "color",
+          "id": "color_text_link",
+          "label": "Text link",
+          "default": "#FD8E16"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "default": "Button label",
+          "label": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_new_window",
+          "default": false,
+          "label": "Open this link in a new window"
+        },
+        {
+          "type": "checkbox",
+          "id": "button_primary",
+          "default": true,
+          "label": "Show as primary button"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "options": [
+            {
+              "value": "square",
+              "label": "Square"
+            },
+            {
+              "value": "rounded",
+              "label": "Rounded"
+            },
+            {
+              "value": "rounded_corners",
+              "label": "Rounded Corners"
+            },
+            {
+              "value": "mixed",
+              "label": "Mixed"
+            }
+          ],
+          "label": "Button style",
+          "default": "square"
+        },
+        {
+          "type": "select",
+          "id": "button_color_mobile",
+          "options": [
+            {
+              "value": "hover",
+              "label": "Use button hover color"
+            },
+            {
+              "value": "color",
+              "label": "Use button color"
+            }
+          ],
+          "label": "Mobile primary button style",
+          "default": "color"
+        },
+        {
+          "type": "select",
+          "id": "button_animation",
+          "options": [
+            {
+              "value": "slide",
+              "label": "Slide"
+            },
+            {
+              "value": "fill_up",
+              "label": "Fill up"
+            },
+            {
+              "value": "sliced",
+              "label": "Sliced with icon"
+            },
+            {
+              "value": "underline",
+              "label": "Underline"
+            }
+          ],
+          "label": "Primary button hover animation",
+          "default": "fill_up"
+        },
+        {
+          "type": "html",
+          "id": "custom_icon_button",
+          "label": "Custom icon (SVG code)",
+          "info": "Applies to 'Sliced with icon' animation type. For assistance with custom SVG code or fixing issues that arise from custom SVG code, please [contact our support](https://support.bsscommerce.com/support/tickets/new)."
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "button_light",
+          "label": "Primary button",
+          "default": "#DCDCDC"
+        },
+        {
+          "type": "color",
+          "id": "button_text_light",
+          "label": "Primary button text",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "button_hover_light",
+          "label": "Primary button hover",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "button_text_hover_light",
+          "label": "Primary button hover text",
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "color",
+          "id": "secondary_button_light",
+          "label": "Secondary button",
+          "default": "rgba(0,0,0,0)"
+        },
+        {
+          "type": "color",
+          "id": "secondary_button_text_light",
+          "label": "Secondary button text",
+          "default": "#000000"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "OT: Media with Text #4",
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Image with text",
+            "subheading": "Example subheading",
+            "text": "<p>Pair text an image to focus on your chosen product, collection or blog post. Add detail on availability, style or even provide a review.</p>"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "button_label": "Button Label"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

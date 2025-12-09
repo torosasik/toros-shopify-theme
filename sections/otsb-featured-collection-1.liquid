@@ -1,0 +1,1187 @@
+{% render 'otsb-featured-collections-base' %}
+{% schema %}
+{
+  "name":"OT: Featured Collection 1",
+  "tag": "section",
+  "class": "section section-featured-collection x-section otsb__root otsb-v2 otsb-v3",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer",
+      "aside"
+    ]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "default": "Featured collections",
+      "label": "Heading",
+      "info": "Wrap your text between [] to add heading highlights. E.g: Adding [marker] will underline [highlight] text."
+    },
+    {
+      "type": "select",
+      "id": "highlight_type",
+      "default": "underline",
+      "label": "Marker",
+      "options": [
+        {
+          "value": "underline",
+          "label": "Underline"
+        },
+        {
+          "value": "font_highlight",
+          "label": "Font highlight"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "default": 100,
+      "label": "Heading size"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "default": "h2",
+      "label": "Heading tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        },
+        {
+          "value": "p",
+          "label": "p"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "default": "center",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "default": false,
+      "label": "Show View all button"
+    },
+    {
+      "type": "select",
+      "id": "view_all_position",
+      "default": "top",
+      "label": "View all button position",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "edges_type",
+      "options": [
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "rounded_corners",
+          "label": "Rounded Corners"
+        }
+      ],
+      "default": "square",
+      "label": "Edges"
+    },
+    {
+      "type": "checkbox",
+      "id": "lazy_image",
+      "label": "Lazy load image",
+      "default": false,
+      "info": "Should be enabled when the collection is at the top and the section is also at the top of the page."
+    },
+    {
+      "type": "header",
+      "content": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 50,
+      "max": 200,
+      "step": 10,
+      "unit": "%",
+      "default": 120,
+      "label": "Title size"
+    },
+    {
+      "type": "select",
+      "id": "title_style",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "capitalize",
+          "label": "Capitalize"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        },
+        {
+          "value": "lowercase",
+          "label": "Lowercase"
+        }
+      ],
+      "default": "none",
+      "label": "Text style"
+    },
+    {
+      "type": "header",
+      "content": "Product cards"
+    },
+    {
+      "type": "color",
+      "id": "card_product_background_color_light",
+      "default": "rgba(0,0,0,0)",
+      "label": "Background color"
+    },
+    {
+      "type": "range",
+      "id": "title_product_cart",
+      "min": 50,
+      "max": 200,
+      "unit": "%",
+      "step": 10,
+      "default": 100,
+      "label": "Title product card"
+    },
+    {
+      "type": "range",
+      "id": "card_product_padding",
+      "min": 0,
+      "max": 50,
+      "unit": "px",
+      "step": 1,
+      "default": 20,
+      "label": "Desktop side padding"
+    },
+    {
+      "type": "range",
+      "id": "card_product_padding_mobile",
+      "min": 0,
+      "max": 10,
+      "unit": "px",
+      "step": 1,
+      "default": 5,
+      "label": "Mobile side padding"
+    },
+    {
+      "type": "select",
+      "id": "product_image_ratio",
+      "options": [
+        {
+          "value": "natural",
+          "label": "Natural"
+        },
+        {
+          "value": "square",
+          "label": "Square (1:1)"
+        },
+        {
+          "value": "landscape",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "portrait",
+          "label": "Portrait (2:3)"
+        },
+        {
+          "value": "wide",
+          "label": "Wide (16:9)"
+        },
+        {
+          "value": "3\/4",
+          "label": "Standard (3:4)"
+        }
+        ],
+        "default": "3\/4",
+        "label": "Image ratio"
+      },
+      {
+        "type": "select",
+        "id": "product_image_type",
+        "default": "hover_to_reveal_second_image",
+        "label": "Image hover effect",
+        "options": [
+          {
+            "value": "hover_to_reveal_second_image",
+            "label": "Hover to reveal second image"
+          },
+          {
+            "value": "slide_img",
+            "label": "Image carousel"
+          },
+          {
+            "value": "none",
+            "label": "None"
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "number_of_additional_images",
+        "min": 2,
+        "max": 4,
+        "step": 1,
+        "label": "Number of additional images",
+        "default": 3
+      },
+      {
+        "type": "color",
+        "id": "transition_arrows",
+        "default": "#000000",
+        "label": "Navigation"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_arrow",
+        "label": "Next/Previous arrows",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "change_slides_speed_card",
+        "min": 0,
+        "max": 4,
+        "step": 1,
+        "unit": "s",
+        "label": "Change slides every",
+        "default": 2
+      },
+      {
+        "type": "paragraph",
+        "content": "Auto-play carousel speed (when Next/Previous arrows are enabled)"
+      },
+    {
+      "type": "select",
+      "id": "info_alignment_card_product",
+      "default": "center",
+      "label": "Content alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    },
+
+    {
+      "type": "header",
+      "content": " Product swatches"
+    },
+    {
+      "type": "checkbox",
+      "id": "products_color_swatches_enable_on_collection_page",
+      "default": true,
+      "label": "Enable on product cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "replace_color_with_variant_images",
+      "default": false,
+      "label": "Replace color options with variant images"
+    },
+    {
+      "type": "select",
+      "id": "swatches_type",
+      "options": [
+        {
+          "value": "text",
+          "label": "Text"
+        },
+        {
+          "value": "color",
+          "label": "Color"
+        },
+        {
+          "value": "both_text_and_color",
+          "label": "Both"
+        }
+        ],
+      "default": "color",
+      "label": "Swatches types on product card"
+    },
+    {
+      "type": "text",
+      "id": "color_option_name",
+      "default": "Color, Colour, Couleur, Farbe",
+      "label": "Color option name",
+      "info": "Fill in all the name(s) of the color option used in the store, phrases of different languages are separated by a comma. (E.g. Color, Colour, Couleur)."
+    },
+    {
+      "type": "textarea",
+      "id": "color_option_values",
+      "label": "Color swatch values",
+      "info": "One 'color name:value' per line. Up to three colors can be used to show vertical stripes. E.g.: 'Red Blue Stripes:#e22#22e'",
+      "placeholder": "Red:#FF0000 \nGreen:#00FF00 \nBlue:#0000FF"
+    },
+    {
+      "type": "paragraph",
+      "content": "To use an image for color swatch, [upload a PNG image](\/admin\/settings\/files) with the file name matching the color name, and spaces replaced by hyphens. E.g. for 'Hot Pink', upload 'hot-pink.png"
+    },
+    {
+      "type": "text",
+      "id": "text_option_name",
+      "default": "Size, Taille, Taglia, Größe",
+      "label": "Text option name",
+      "info": "Fill in the name(s) of the option used as text swatch, phrases of different languages are separated by a comma (E.g. Size, Taille)."
+    },
+    {
+      "type": "textarea",
+      "id": "text_option_values",
+      "label": "Text option values",
+      "info": "One 'option name:value' per line.",
+      "placeholder": "Small:S \nMedium:M \nLarge:L"
+    },
+    {
+      "type": "select",
+      "id": "products_color_swatches_style",
+      "options": [
+        {
+          "value": "round",
+          "label": "Round"
+        },
+        {
+          "value": "square",
+          "label": "Square"
+        },
+        {
+          "value": "natural",
+          "label": "Natural"
+        }
+      ],
+      "default": "round",
+      "label": "Swatch style"
+    },
+    {
+      "type": "select",
+      "id": "swatch_size",
+      "default": "small",
+      "label": "Swatch size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "swatch_show_by_default",
+      "min": 0,
+      "max": 12,
+      "step": 1,
+      "label": "Swatches shown by default",
+      "info": "Select 0 to show all available swatches on product cards.",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Carousel"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_desktop_slider",
+      "label": "Enable carousel on desktop",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "slider_style",
+      "label": "Carousel style",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "Horizontal"
+        },
+        {
+          "value": "vertical",
+          "label": "Vertical"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "swiper_on_mobile",
+      "default": false,
+      "label": "Enable swipe on mobile"
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_play",
+      "label": "Enable auto-play",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "change_slides_speed",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Change slides every",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 5,
+      "label": "Products per row on desktop"
+    },
+    {
+      "type": "range",
+      "id": "rows_desktop",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2,
+      "label": "Number of rows"
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20,
+      "label": "Block spacing"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "default": true,
+      "label": "Make section full width"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "Show section divider"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "Top padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "Bottom padding"
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "default": "2",
+      "label": "Products per row on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "spacing_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 16,
+      "label": "Block spacing"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width_mobile",
+      "default": false,
+      "label": "Make section full width"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider_mobile",
+      "default": false,
+      "label": "Show section divider"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "Top padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "step": 4,
+      "default": 28,
+      "label": "Bottom padding"
+    },
+    {
+      "type": "header",
+      "content": "Color"
+    },
+    {
+      "type": "color",
+      "id": "color_heading",
+      "default": "rgba(0,0,0,0)",
+      "label": "Heading"
+    },
+    {
+      "type": "color",
+      "id": "color_heading_highlight",
+      "default": "rgba(0,0,0,0)",
+      "label": "Heading highlight"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "default": "rgba(0,0,0,0)",
+      "label": "Text"
+    },
+    {
+      "type": "color",
+      "id": "color_text_link",
+      "default": "rgba(0,0,0,0)",
+      "label": "Text link"
+    },
+    {
+      "type": "color",
+      "id": "image_treatment_overlay",
+      "default": "#202020",
+      "label": "Image treatment overlay"
+    },
+    {
+      "type": "color",
+      "id": "image_treatment_text",
+      "default": "#fff",
+      "label": "Video button",
+      "info": "Used for video play and mute icons."
+    },
+    {
+      "type": "color",
+      "id": "background_active",
+      "default": "#f2f2f2",
+      "label": "Background active tab"
+    },
+    {
+      "type": "color",
+      "id": "text_active",
+      "default": "#154326",
+      "label": "Text active tab"
+    },
+    {
+      "type": "color",
+      "id": "line_border",
+      "default": "rgba(0,0,0,0)",
+      "label": "Line border"
+    },
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collections",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_description",
+          "label": "Show description",
+          "default": true
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "select",
+          "id": "number_of_lines_shown",
+          "label": "Default content height",
+          "info": "Decide the height of content block shown before clicking Read more.",
+          "default": "none",
+          "options": [
+            {
+              "value": "none",
+              "label": "Show full content"
+            },
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "read_more_label",
+          "default": "Read more",
+          "label": "Read more label"
+        },
+        {
+          "type": "text",
+          "id": "see_less_label",
+          "default": "See less",
+          "label": "See less label"
+        },
+        {
+          "type": "header",
+          "content": "Product cards"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "default": false,
+          "label": "Show vendor"
+        },
+        {
+          "type": "header",
+          "content": "Title card"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_promotion",
+          "default": false,
+          "label": "Enable title card",
+          "info": "Card prioritizes showing the featured product, followed by video and then image."
+        },
+        {
+          "type": "select",
+          "id": "promotion_position",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "label": "Title card position"
+        },
+        {
+          "type": "url",
+          "id": "card_link",
+          "label": "Title card link"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_new_window",
+          "default": false,
+          "label": "Open this link in a new window"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Card image",
+          "info": "For recommended image sizes, check our [user guide](https://support.omnithemes.com/blogs/faqs/can-you-recommend-image-sizes-for-the-different-image-layouts-of-different-section)"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_text_overlay",
+          "default": false,
+          "label": "Enable text overlay"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "min": 0,
+          "max": 100,
+          "step": 10,
+          "unit": "%",
+          "label": "Overlay opacity",
+          "default": 0,
+          "info": "Only applies to image"
+        },
+        {
+          "type": "select",
+          "id": "image_ratio",
+          "options": [
+            {
+              "value": "auto",
+              "label": "Natural"
+            },
+            {
+              "value": "100",
+              "label": "Square (1:1)"
+            },
+            {
+              "value": "75",
+              "label": "Landscape (4:3)"
+            },
+            {
+              "value": "150",
+              "label": "Portrait (2:3)"
+            },
+            {
+              "value": "56",
+              "label": "Wide (16:9)"
+            },
+            {
+              "value": "133",
+              "label": "Standard (3:4)"
+            }
+          ],
+          "default": "100",
+          "label": "Image ratio",
+          "info": "Do not apply to overlay text style."
+        },
+        {
+          "type": "header",
+          "content": "Shopify-hosted video"
+        },
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_sound_control",
+          "label": "Show sound control",
+          "info": "Applies to auto play videos only.",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Or embed video from url"
+        },
+        {
+          "type": "paragraph",
+          "content": "Shows when no Shopify-hosted video is selected."
+        },
+        {
+          "type": "video_url",
+          "id": "video_url",
+          "accept": [
+            "youtube",
+            "vimeo"
+          ],
+          "label": "URL",
+          "info": "Supports YouTube and Vimeo."
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_video_autoplay",
+          "default": false,
+          "label": "Enable video autoplay",
+          "info": "Video will be muted when autoplay is on."
+        },
+        {
+          "type": "text",
+          "id": "video_alt_text",
+          "label": "Video alt text"
+        },
+        {
+          "type": "product",
+          "id": "product_card",
+          "label": "Replace card with featured product"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Featured collection",
+          "label": "Heading",
+          "info": "Wrap your text between [] to add heading highlights. E.g: Adding [marker] will underline [highlight] text."
+        },
+        {
+          "type": "select",
+          "id": "highlight_type",
+          "default": "underline",
+          "label": "Marker",
+          "options": [
+            {
+              "value": "underline",
+              "label": "Underline"
+            },
+            {
+              "value": "font_highlight",
+              "label": "Font highlight"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "heading_size",
+          "min": 50,
+          "max": 200,
+          "step": 10,
+          "unit": "%",
+          "default": 70,
+          "label": "Heading size"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "default": "<p>10% OFF</p>",
+          "label": "Text"
+        },
+        {
+          "type": "range",
+          "id": "text_size",
+          "min": 50,
+          "max": 200,
+          "step": 10,
+          "unit": "%",
+          "default": 100,
+          "label": "Text size"
+        },
+        {
+          "type": "select",
+          "id": "content_alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center",
+          "label": "Content alignment"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "options": [
+            {
+              "value": "top",
+              "label": "Top"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            }
+          ],
+          "label": "Content position",
+          "default": "bottom"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "default": "See more",
+          "label": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_new_window_button",
+          "default": false,
+          "label": "Open this link in a new window"
+        },
+        {
+          "type": "select",
+          "id": "show_button_style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            },
+            {
+              "value": "text-link",
+              "label": "Text link"
+            }
+          ],
+          "label": "Button style",
+          "default": "primary"
+        },
+        {
+          "type": "header",
+          "content": "Button Design"
+        },
+        {
+          "type": "select",
+          "id": "button_type",
+          "options": [
+            {
+              "value": "square",
+              "label": "Square"
+            },
+            {
+              "value": "rounded",
+              "label": "Rounded"
+            },
+            {
+              "value": "rounded_corners",
+              "label": "Rounded Corners"
+            },
+            {
+              "value": "mixed",
+              "label": "Mixed"
+            }
+          ],
+          "label": "Button style",
+          "default": "square"
+        },
+        {
+          "type": "select",
+          "id": "button_color_mobile",
+          "options": [
+            {
+              "value": "hover",
+              "label": "Use button hover color"
+            },
+            {
+              "value": "color",
+              "label": "Use button color"
+            }
+          ],
+          "label": "Mobile primary button style",
+          "default": "color"
+        },
+        {
+          "type": "select",
+          "id": "button_animation",
+          "options": [
+            {
+              "value": "slide",
+              "label": "Slide"
+            },
+            {
+              "value": "fill_up",
+              "label": "Fill up"
+            },
+            {
+              "value": "sliced",
+              "label": "Sliced with icon"
+            },
+            {
+              "value": "underline",
+              "label": "Underline"
+            }
+          ],
+          "label": "Primary button hover animation",
+          "default": "fill_up"
+        },
+        {
+          "type": "html",
+          "id": "custom_icon_button",
+          "label": "Custom icon (SVG code)",
+          "info": "Applies to 'Sliced with icon' animation type. For assistance with custom SVG code or fixing issues that arise from custom SVG code, please [contact our support](https://omnithemes.com/contact/)."
+        },
+        {
+          "type": "header",
+          "content": "Color"
+        },
+        {
+          "type": "color",
+          "id": "background_color",
+          "default": "rgba(0,0,0,0)",
+          "label": "Background color"
+        },
+        {
+          "type": "color",
+          "id": "color_text",
+          "default": "rgba(0,0,0,0)",
+          "label": "Text color"
+        },
+        {
+          "type": "color",
+          "id": "color_heading_highlight", 
+          "label": "Heading highlight color",
+          "default": "rgba(0,0,0,0)"
+        },
+        {
+          "type": "color",
+          "id": "color_button",
+          "default": "rgba(0,0,0,0)",
+          "label": "Button color"
+        },
+        {
+          "type": "color",
+          "id": "color_text_button",
+          "default": "rgba(0,0,0,0)",
+          "label": "Button text color"
+        },
+        {
+          "type": "color",
+          "id": "color_button_hover",
+          "default": "rgba(0,0,0,0)",
+          "label": "Button hover color"
+        },
+        {
+          "type": "color",
+          "id": "color_text_button_hover",
+          "default": "rgba(0,0,0,0)",
+          "label": "Button text hover color"
+        },
+        {
+          "type": "color",
+          "id": "color_button_secondary",
+          "default": "rgba(0,0,0,0)",
+          "label": "Secondary button color"
+        },
+        {
+          "type": "color",
+          "id": "secondary_button_text",
+          "default": "rgba(0,0,0,0)",
+          "label": "Secondary button text color"
+        },
+        {
+          "type": "color",
+          "id": "colors_text_link",
+          "default": "rgba(0,0,0,0)",
+          "label": "Text link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "OT: Featured Collection 1",
+      "blocks": [
+        {
+          "type": "collection" 
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

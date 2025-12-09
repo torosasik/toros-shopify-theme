@@ -1,0 +1,51 @@
+{% liquid
+    if settings.lang_direction contains request.locale.iso_code
+      assign is_rtl = true
+    else
+      assign is_rtl = false
+    endif
+    assign text_highlight = '<span class="highlight relative inline-block">'
+    assign end_highlight = '</span>'
+  %}
+  {%- if number_of_lines_shown > 0 -%}
+    {%- style -%}
+      .otsb-truncate-line-clamped.line-clamp-{{ blockID }} {
+        -webkit-line-clamp: {{ number_of_lines_shown }};
+      }
+    .otsb-truncate-text-{{ blockID }} .gradient {
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      width: 100%;
+      height: 65%;
+      background: linear-gradient(rgba(var(--colors-text), 0), rgb(var(--background-color)));
+    }
+    {%- endstyle -%}
+    <div class="otsb-truncate-container" x-data="otsb_xTruncateText">
+      <div
+          class="relative otsb-truncate-text-{{ blockID }} otsb-truncate-text otsb-truncate-line-clamped {{ class_truncate_text }} line-clamp-{{ blockID }}" 
+          x-intersect.once="$nextTick(() => { setTruncate($el); load($el) })"
+      >
+        <div class="otsb-text-truncate otsb-truncate-inner relative otsb-rte{% if text_alignment_mobile == 'right' or text_alignment_mobile == 'text-right' and is_rtl == false %} otsb-add-dot-mobile{% endif %}{% if text_alignment == 'right' and is_rtl == false %} otsb-add-dot{% else %} otsb-add-dot-none{% endif %}"
+        >
+        {% if content contains '[' and content contains ']' %}
+          {{ content | replace: '<iframe ', '<iframe loading="lazy" ' | replace: '[', text_highlight | replace: ']', end_highlight }}
+        {% else %}
+          {{ content | replace: '<iframe ', '<iframe loading="lazy" '}}
+        {% endif %}
+        </div>
+        <div class="{% if gradient_style == 'secondary' %}gradient-secondary {% else %}gradient {% endif %}block" :class="expanded ? 'hidden' : 'block'"></div>
+      </div>
+      <template x-if="truncatable" x-show="truncatable">
+      <button class="button-link relative effect-inline inline mt-4 mb-4" x-init="label = `{{ read_more_label | escape }}`"  x-transition @click.prevent="truncated ? open($el, `{{ see_less_label | escape }}`) : close($el, `{{ read_more_label | escape }}`, '{{ quick_view }}');" x-text="label"></button>
+    </template>
+    </div>
+  {% else %}
+    <div class="otsb-rte">
+      {% if content contains '[' and content contains ']' %}
+        {{ content | replace: '<iframe ', '<iframe loading="lazy" ' | replace: '[', text_highlight | replace: ']', end_highlight }}
+      {% else %}
+        {{ content  | replace: '<iframe ', '<iframe loading="lazy" '}}
+      {% endif %}
+    </div>
+  {% endif %}
