@@ -1692,7 +1692,7 @@
       $('#total_coverage').val(total_coverage_rounded);
       $('#total_square').text(total_coverage_rounded);
       $('#squared_size').val(total_coverage_rounded);
-      $('[name="quantity"]').attr('value', output_boxes).val(output_boxes);
+      $('[name="quantity"]').attr('value', output_boxes).val(output_boxes).trigger('input');
       $('#quantity_look_alike').val(output_boxes);
       $('#product_page_total').text('$' + rounded_total_avg.toFixed(2));
 
@@ -1774,7 +1774,7 @@
       $('#total_coverage').val(total_coverage_rounded);
       $('#total_square').text(total_coverage_rounded);
       $('#squared_size').val(total_coverage_rounded);
-      $('[name="quantity"]').attr('value', output_boxes).val(output_boxes);
+      $('[name="quantity"]').attr('value', output_boxes).val(output_boxes).trigger('input');
       $('#quantity_look_alike').val(output_boxes);
       $('#product_page_total').text('$' + rounded_total_avg.toFixed(2));
 
@@ -1870,7 +1870,7 @@
       $('#ovg-total_coverage').val(solution_rounded);
       $('#ovg-total_square').text(solution_rounded);
       $('#squared_size').val(solution_rounded);
-      $('[name="quantity"]').attr('value', output_boxes).val(output_boxes);
+      $('[name="quantity"]').attr('value', output_boxes).val(output_boxes).trigger('input');
       $('#quantity_look_alike').val(output_boxes);
       $('#product_page_total').text('$' + rounded_total_avg.toFixed(2));
       
@@ -1925,7 +1925,7 @@
       $('#squared_size').val(total_coverage_rounded);
       $('#total_cost').val('$' + rounded_total_avg);
       $('#boxes_needed').text(output_boxes);
-      $('[name="quantity"]').attr('value',output_boxes).val(output_boxes);
+      $('[name="quantity"]').attr('value',output_boxes).val(output_boxes).trigger('input');
       $('#quantity_look_alike').val(output_boxes);
       $('#product_page_total').text('$' + rounded_total_avg);
       $('#calculator-footage').val(total_coverage_rounded);
@@ -1958,7 +1958,7 @@
       $('#calculator-footage').val(q_calc_rounded);
       $('#ovg-calculator-footage').val(q_calc_rounded);
       
-      $('[name="quantity"]').attr('value',quantity_look_alike).val(quantity_look_alike);
+      $('[name="quantity"]').attr('value',quantity_look_alike).val(quantity_look_alike).trigger('input');
       
       // Update property fields
       updatePropertyFields(quantity_look_alike, q_calc_rounded, quantity_look_alike * tiles_per_box);
@@ -1974,7 +1974,7 @@
       $('#total_square').text(solution);
       $('#total_cost').val('$' + totalCost.toFixed(2));
       $('#boxes_needed').text(boxes);
-      $('[name="quantity"]').attr('value',boxes).val(boxes);
+      $('[name="quantity"]').attr('value',boxes).val(boxes).trigger('input');
       $('#quantity_look_alike').val(boxes);
       $('#product_page_total').text('$' + totalCost.toFixed(2));
       
@@ -2002,7 +2002,7 @@
       $('#ovg-total_square').text(solution);
       $('#ovg-total_cost').val('$' + totalCost.toFixed(2));
       $('#ovg-boxes_needed').text(boxes);
-      $('[name="quantity"]').attr('value',boxes).val(boxes);
+      $('[name="quantity"]').attr('value',boxes).val(boxes).trigger('input');
       $('#quantity_look_alike').val(boxes);
       $('#product_page_total').text('$' + totalCost.toFixed(2));
       
