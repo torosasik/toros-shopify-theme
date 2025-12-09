@@ -1590,10 +1590,18 @@
 
     $("#quantity_look_alike").on('input change', function() {
       console.log("Quantity look-alike input changed.");
-      calculateFromQuantity();
       
       // Update property fields when quantity changes
       var quantity = Number($(this).val() || 0);
+      
+      // FORCE SYNC ALL QUANTITY INPUTS
+      $('#fallback-quantity').val(quantity);
+      $('[name="quantity"]').val(quantity).trigger('input');
+      // Target Alpine input specifically by partial ID if needed/possible, though name="quantity" should catch it
+      $('input[id^="Quantity-"]').val(quantity).trigger('input');
+      
+      calculateFromQuantity(); // This also triggers updates but redundancy is safe here
+      
       var tile_size = {{tile_size}};
       var tiles_per_box = {{tiles_per_box}};
       var box_dimensions = {{ box_area_clean }};
@@ -1959,6 +1967,9 @@
       $('#ovg-calculator-footage').val(q_calc_rounded);
       
       $('[name="quantity"]').attr('value',quantity_look_alike).val(quantity_look_alike).trigger('input');
+      // Explicit sync
+      $('#fallback-quantity').val(quantity_look_alike);
+      $('input[id^="Quantity-"]').val(quantity_look_alike).trigger('input');
       
       // Update property fields
       updatePropertyFields(quantity_look_alike, q_calc_rounded, quantity_look_alike * tiles_per_box);
@@ -2663,6 +2674,7 @@
                         x-ref: 'product_form',
                         enctype: 'multipart/form-data'
                       -%}
+                      <input type="hidden" name="quantity" id="fallback-quantity" value="1">
                       {% if product.tags contains "Tile_calculator" or product.tags contains "overage-popup-v3" %}
                       {% if product.metafields.measuringunitsatd.measuring_units_atd == "Box" %}
                         <input id="property-qty" type="hidden" name="properties[Boxes]" value="1">                        
