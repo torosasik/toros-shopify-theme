@@ -1588,7 +1588,7 @@
       calculateFromSquaredSize();
     });
 
-    $("#quantity_look_alike").change(function() {
+    $("#quantity_look_alike").on('input change', function() {
       console.log("Quantity look-alike input changed.");
       calculateFromQuantity();
       
