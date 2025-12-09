@@ -1469,10 +1469,48 @@
       $(".calc_pop_up").addClass("calc_pop_up-open");
       resetTileCalculator();
       console.log("Added calc_pop_up-open class.");
-      // Auto-focus input after transition
-      setTimeout(function(){
-        $("#calculator-footage").focus();
-      }, 500);
+<script defer="defer">
+  $(document).ready(function() {
+    console.log("Document ready, calculator script loaded.");
+                        
+    var output_boxes = 0;
+    var overageSet = false;
+
+    // Function to update property fields
+    function updatePropertyFields(quantity, sqft, pieces) {
+      // Only update if the elements exist
+      if (document.querySelector('#property-qty')) {
+        document.querySelector('#property-qty').value = quantity;
+      }
+      
+      if (document.querySelector('#property-sqft')) {
+        document.querySelector('#property-sqft').value = sqft;
+      }
+      
+      if (document.querySelector('#property-pieces')) {
+        document.querySelector('#property-pieces').value = pieces;
+      }
+    }
+
+    // Calculator popup
+    $(".calc_pop_up").click(function(event) {
+      var container = $("#tile-calculator");
+      if (!container.is(event.target) && !container.has(event.target).length) {
+        console.log("Closing calc pop-up.");
+        $(".calc_pop_up").removeClass("calc_pop_up-open");
+        $(this).parents('html').removeClass('overflow-pop-hidden');
+      }
+    });
+    
+    $(".productInfo-popup-close").click(function(event) {
+      $(".calc_pop_up").removeClass("calc_pop_up-open");
+        $(this).parents('html').removeClass('overflow-pop-hidden');
+    });
+    
+    $(".open_calc_pop_up").click(function(){
+      $(this).parents('html').addClass('overflow-pop-hidden');
+      $(".calc_pop_up").addClass("calc_pop_up-open");
+      console.log("Added calc_pop_up-open class.");
     });
 
     $("#calculator-footage").focus(function() {
@@ -1487,34 +1525,17 @@
       $("#calculator-dimensions-section").removeClass("opacity_low");
     });
 
-    $("#calculator-footage").on('input', function() {
+    $("#calculate_top").click(function() {
+      console.log("Calculate top button clicked.");
+      $("#calculator-footage-section").removeClass("opacity_low");
+      $("#calculator-dimensions-section").addClass("opacity_low");
       calculateTop();
-    });
-
-    $('#overage_top input[name="properties[TOP-OVERAGE]"]').on('change', function() {
-      calculateTop();
-    });
-
-    // Auto-calculate dimensions on input
-    $('#calculator-length-ft, #calculator-length-in, #calculator-width-ft, #calculator-width-in').on('input', function() {
-      // If user is typing in dimensions, clear the main area input to avoid confusion
-      if ($(this).is(':focus')) {
-         $('#calculator-footage').val('');
-      }
-      calculateBottom();
-    });
-    
-    // Clear dimensions when user types in Area manually
-    $('#calculator-footage').on('input', function() {
-       if ($(this).is(':focus')) {
-         $('#calculator-length-ft, #calculator-length-in, #calculator-width-ft, #calculator-width-in').val('');
-       }
-       // We must trigger calculateTop here if it's not auto-triggered by other listeners
-       // But the 'required-entry' class usually has a listener or we rely on the button/auto-calc
     });
 
     $("#calculate_bottom").click(function() {
       console.log("Calculate bottom button clicked.");
+      $("#calculator-footage-section").addClass("opacity_low");
+      $("#calculator-dimensions-section").removeClass("opacity_low");
       calculateBottom();
     });
 
@@ -1535,7 +1556,24 @@
     // Auto-calculate when overage percentage is selected
     $(document).on('change', '#ovg-overage input[name="properties[OVERAGE]"]', function() {
       console.log('Overage selection changed to:', this.value);
-      autoCalculateOverage();
+      if (this.value !== 'manual') {
+        autoCalculateOverage();
+      } else {
+        // If manual is selected and there's already a value in manual input, calculate
+        const manualValue = $('#manualInputFieldOVG').val();
+        if (manualValue && parseFloat(manualValue) >= 0) {
+          autoCalculateOverage();
+        }
+      }
+    });
+    
+    // Auto-calculate when manual input changes
+    $(document).on('input change', '#manualInputFieldOVG', function() {
+      console.log('Manual input changed to:', $(this).val());
+      const inputValue = $(this).val();
+      if (inputValue !== '' && parseFloat(inputValue) >= 0) {
+        autoCalculateOverage();
+      }
     });
     
     // Auto-calculate when square footage input changes
@@ -1544,31 +1582,41 @@
       clearTimeout(footageInputTimer);
       footageInputTimer = setTimeout(autoCalculateOverage, 500);
     });
+    
+    $("#squared_size").change(function() {
+      console.log("Squared size input changed.");
+      calculateFromSquaredSize();
+    });
+
+    $("#quantity_look_alike").change(function() {
+      console.log("Quantity look-alike input changed.");
+      calculateFromQuantity();
+      
+      // Update property fields when quantity changes
+      var quantity = Number($(this).val() || 0);
+      var tile_size = {{tile_size}};
+      var tiles_per_box = {{tiles_per_box}};
+      var box_dimensions = {{ box_area_clean }};
+      
+      updatePropertyFields(quantity, (quantity * box_dimensions).toFixed(2), quantity * tiles_per_box);
+    });
 
     $('#addToquanitity').click(function() {
-        if (typeof output_boxes !== 'undefined' && output_boxes > 0) {
+        if (output_boxes > 0) {
             {% if product.variants.first.inventory_management == 'shopify' %}
               if (output_boxes > {{ max_qty }}) {
                   alert("Only {{ max_qty }} available");
                   return;
               }
             {% endif %}
-            
-            // UPDATE POPUP TEXT WITH CURRENT QUANTITY
-            var currentQty = $('#quantity_look_alike').val() || $('input[name="quantity"]').val() || 0;
-            $('#ovg-context-qty').text(currentQty);
-            
-            // OPEN OVERAGE REMINDER POPUP FIRST
-            $('#ovg-popup').addClass('ovg-popup-open');
-            
-            // Then close the calculator (optional delay if needed, but instant should work)
             $('.calc_pop_up').removeClass('calc_pop_up-open'); 
             $(this).parents('html').removeClass('overflow-pop-hidden');
+            $('#x-atc-button-{{ section.id }}').click();
         }
     });
 
     $('#ovg-addToquanitity').click(function() {
-        if (typeof output_boxes !== 'undefined' && output_boxes > 0) {
+        if (output_boxes > 0) {
             {% if product.variants.first.inventory_management == 'shopify' %}
               if (output_boxes > {{ max_qty }}) {
                   alert("Only {{ max_qty }} available");
@@ -1579,7 +1627,7 @@
             $(this).parents('html').removeClass('overflow-pop-hidden');
             $('#x-atc-button-{{ section.id }}').click();
         }
-    });
+    }); 
 
     function up(v, n) {
       return Math.ceil(v * Math.pow(10, n)) / Math.pow(10, n);
@@ -1599,22 +1647,22 @@
       
       // Get overage percentage
       var selectedOverage = $('#overage_top input[name="properties[TOP-OVERAGE]"]:checked').val();
+      var manualOverage = $('#overage_top #manualInputField').val();
       var overage = 0;
       
-      if (selectedOverage === 'no_overage') {
+      if (selectedOverage === 'manual') {
+        overage = manualOverage ? parseFloat(manualOverage) / 100 : 0;
+      } else if (selectedOverage === 'no_overage') {
         overage = 0;
       } else {
         overage = parseFloat(selectedOverage);
       }
       
-      // Calculate overage amount
-      var overage_amount = calculator_footage * overage;
-      $('#overage_amount_display').text(overage_amount.toFixed(2));
-      
       // Calculate solution with overage
       var solution = calculator_footage * (1 + overage);
-      var solution_formatted = solution.toFixed(2);
+      var solution_rounded = parseFloat(solution.toFixed(2));
       
+      // Calculate boxes needed
       var box_output = solution / box_dimensions;
       var amount_of_boxes = box_output;
       
@@ -1622,7 +1670,7 @@
 
       {% if product.variants.first.inventory_management == 'shopify' %}
         if (output_boxes > {{ max_qty }}) {
-           // Auto-calc should not alert repeatedly. Capping silently.
+          alert('Only {{ max_qty }} available');
           output_boxes = {{ max_qty }};
         }
       {% endif %}
@@ -1635,64 +1683,36 @@
       // Calculate actual coverage based on boxes
       var total_coverage = output_boxes * box_dimensions;
       var total_coverage_rounded = parseFloat(total_coverage.toFixed(2));
-      var total_coverage_formatted = total_coverage.toFixed(2);
       
       // Update outputs
       $('#boxes').val(output_boxes);
-      $('#solution').val(solution_formatted);
+      $('#solution').val(solution_rounded);
       $('#total_cost').val('$' + rounded_total_avg.toFixed(2));
-
-      // Trigger pulse animation
-      $('.result-value input').each(function() {
-        var $parent = $(this).parent();
-        $parent.removeClass('pulse-update');
-        void $parent[0].offsetWidth; 
-        $parent.addClass('pulse-update');
-      });
       $('#boxes_needed').text(output_boxes);
-      $('#total_coverage').val(total_coverage_formatted);
-      $('#total_square').text(total_coverage_formatted);
-      $('#squared_size').val(total_coverage_formatted);
+      $('#total_coverage').val(total_coverage_rounded);
+      $('#total_square').text(total_coverage_rounded);
+      $('#squared_size').val(total_coverage_rounded);
       $('[name="quantity"]').attr('value', output_boxes).val(output_boxes);
       $('#quantity_look_alike').val(output_boxes);
       $('#product_page_total').text('$' + rounded_total_avg.toFixed(2));
 
       const overagePercentage = Math.round(overage * 100) + '%';
+      console.log('Formatted overage:', overagePercentage);
       const propertyOverage = document.querySelector('#property-overage');
       if (propertyOverage) {
         propertyOverage.value = overagePercentage;
+        console.log('Updated #property-overage to:', overagePercentage);
+      } else {
+        console.error('#property-overage element not found');
       }
       
       // Update property fields
       updatePropertyFields(output_boxes, total_coverage_rounded, output_boxes * tiles_per_box);
-
-      // RESTORE OVERAGE OVERLAY LOGIC
-      // If we have a valid calculation, we must ensure the Overage Reminder can trigger.
-      // We check if the overlay exists; if not, and no overage is explicitly set (default flow), we add it.
-      if ($('#x-atc-button-{{ section.id }}').length) {
-        var $button = $('#x-atc-button-{{ section.id }}');
-        // Ensure parent is relative so overlay sits on top
-        $button.parent().css('position', 'relative');
-        
-        if ($('#overage-submit').length === 0) {
-             var $overlay = $('<div id="overage-submit" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:50; cursor:pointer; background:transparent;"></div>');
-             $button.parent().append($overlay);
-             
-             // Re-bind click to the new overlay to trigger overage popup
-             $('#overage-submit').click(function(e) {
-                 e.preventDefault();
-                 e.stopPropagation();
-                 console.log("Overage overlay clicked - opening popup");
-                 // Remove main popup active class? Or just open overage on top?
-                 // Usually we hide main and show overage, or show overage on top.
-                 // Based on previous code: open overage popup.
-                 $('#ovg-popup').addClass('ovg-popup-open');
-                 // Also close main calculator? User didn't specify, but usually yes or stack.
-                 // Let's keep main open or close it? 
-                 // Previous logic: $('.calc_pop_up').removeClass('calc_pop_up-open');
-                 $('.calc_pop_up').removeClass('calc_pop_up-open');
-             });
-        }
+      
+      // Set overage flag
+      overageSet = true;
+      if ($('#overage-submit').length > 0) {
+        $('#overage-submit').remove();
       }
     }
 
@@ -1711,38 +1731,33 @@
       
       var area = length * width;
       var area_rounded = parseFloat(area.toFixed(2));
-
-      // UPDATE TOP INPUT (Exclusive Logic)
-      if (area > 0) {
-         $('#calculator-footage').val(area_rounded);
-         // Call calculateTop to run the shared logic (price, boxes, AND OVERAGE OVERLAY)
-         calculateTop();
-         // We return here because calculateTop handles everything rest
-         return; 
-      }
       
-      // ... Legacy fallback if needed (though area>0 covers 99% of cases when typing)
-      
-      var selectedOverage = 'no_overage'; // Default for bottom calc if not specified
+      var selectedOverage = $('#overage_bottom input[name="properties[BTM-OVERAGE]"]:checked').val();
+      var manualOverage = $('#overage_bottom #manualInputFieldBottom').val();
       var overage = 0;
       
+      if (selectedOverage === 'manual') {
+        overage = manualOverage ? parseFloat(manualOverage) / 100 : 0;
+      } else if (selectedOverage === 'no_overage') {
+        overage = 0;
+      } else {
+        overage = parseFloat(selectedOverage);
+      }
+      
       var solution = area * (1 + overage);
-      // var solution_rounded = parseFloat(solution.toFixed(2));
-      var solution_formatted = solution.toFixed(2);
+      var solution_rounded = parseFloat(solution.toFixed(2));
       
       var box_output = solution / box_dimensions;
       var amount_of_boxes = box_output;
-      
       output_boxes = up(amount_of_boxes, 0);
 
       {% if product.variants.first.inventory_management == 'shopify' %}
         if (output_boxes > {{ max_qty }}) {
-           // Auto-calc should not alert repeatedly. Capping silently.
+          alert('Only {{ max_qty }} available');
           output_boxes = {{ max_qty }};
         }
       {% endif %}
-
-      // Calculate total cost
+      
       var product_price = {{ product.price | divided_by: 100.00 }};
       var total_cost_avg = product_price * output_boxes;
       var rounded_total_avg = roundUp(total_cost_avg, 2);
@@ -1750,30 +1765,37 @@
       // Calculate actual coverage based on boxes
       var total_coverage = output_boxes * box_dimensions;
       var total_coverage_rounded = parseFloat(total_coverage.toFixed(2));
-      var total_coverage_formatted = total_coverage.toFixed(2);
       
       // Update outputs
       $('#boxes').val(output_boxes);
-      $('#solution').val(solution_formatted);
+      $('#solution').val(solution_rounded);
       $('#total_cost').val('$' + rounded_total_avg.toFixed(2));
-
-      // Trigger pulse animation
-      $('.result-value input').each(function() {
-        var $parent = $(this).parent();
-        $parent.removeClass('pulse-update');
-        void $parent[0].offsetWidth; // trigger reflow
-        $parent.addClass('pulse-update');
-      });
       $('#boxes_needed').text(output_boxes);
-      $('#total_coverage').val(total_coverage_formatted);
-      $('#total_square').text(total_coverage_formatted);
-      $('#squared_size').val(total_coverage_formatted);
+      $('#total_coverage').val(total_coverage_rounded);
+      $('#total_square').text(total_coverage_rounded);
+      $('#squared_size').val(total_coverage_rounded);
       $('[name="quantity"]').attr('value', output_boxes).val(output_boxes);
       $('#quantity_look_alike').val(output_boxes);
       $('#product_page_total').text('$' + rounded_total_avg.toFixed(2));
+
+      const overagePercentage = Math.round(overage * 100) + '%';
+      console.log('Formatted overage:', overagePercentage);
+      const propertyOverage = document.querySelector('#property-overage');
+      if (propertyOverage) {
+        propertyOverage.value = overagePercentage;
+        console.log('Updated #property-overage to:', overagePercentage);
+      } else {
+        console.error('#property-overage element not found');
+      }
       
       // Update property fields
       updatePropertyFields(output_boxes, total_coverage_rounded, output_boxes * tiles_per_box);
+      
+      // Set overage flag
+      overageSet = true;
+      if ($('#overage-submit').length > 0) {
+        $('#overage-submit').remove();
+      }
     }
 
     function calculateOverage(){
@@ -1784,12 +1806,18 @@
       
       // Get overage percentage
       var selectedOverage = $('#ovg-overage-selectors input[name="properties[OVERAGE]"]:checked').val();
+      var manualOverage = $('#manualInputFieldOVG').val();
       var overage = 0;
       
       console.log('Selected overage:', selectedOverage);
+      console.log('Manual overage input:', manualOverage);
       console.log('Calculator footage:', calculator_footage);
       
-      if (selectedOverage === 'no_overage') {
+      if (selectedOverage === 'manual') {
+        // Make sure we're parsing the manual input correctly
+        overage = manualOverage ? parseFloat(manualOverage) / 100 : 0;
+        console.log('Parsed manual overage (after division):', overage);
+      } else if (selectedOverage === 'no_overage') {
         overage = 0;
       } else {
         overage = parseFloat(selectedOverage);
@@ -1798,14 +1826,10 @@
       // Calculate overage amount
       var overage_amount = calculator_footage * overage;
       var overage_amount_rounded = parseFloat(overage_amount.toFixed(2));
-      var overage_amount_formatted = overage_amount.toFixed(2); // Keep as formatted string
       
       // Calculate solution with overage
       var solution = calculator_footage * (1 + overage);
       var solution_rounded = parseFloat(solution.toFixed(2));
-      // CRITICAL: Keep as string to preserve trailing zeros like "122.10"
-      var solution_formatted = String(solution.toFixed(2));
-      console.log('DEBUG solution_formatted:', solution_formatted, 'type:', typeof solution_formatted);
       
       // Calculate boxes needed - use Math.round instead of up() for overage calculations
       var box_output = solution / box_dimensions;
@@ -1838,47 +1862,27 @@
       var total_coverage = output_boxes * box_dimensions;
       var total_coverage_rounded = parseFloat(total_coverage.toFixed(2));
       
-      // Update original hidden outputs (for functionality) - use formatted strings
+      // Update original hidden outputs (for functionality)
       $('#ovg-boxes').val(output_boxes);
-      $('#ovg-solution').val(overage_amount_formatted); // Store as formatted string "11.10"
+      $('#ovg-solution').val(overage_amount_rounded);
       $('#ovg-total_cost').val('$' + rounded_total_avg.toFixed(2));
       $('#ovg-boxes_needed').text(output_boxes);
-      $('#ovg-total_coverage').val(solution_formatted); // Store as formatted string "122.10"
-      $('#ovg-total_square').text(solution_formatted);
-      $('#squared_size').val(solution_formatted);
+      $('#ovg-total_coverage').val(solution_rounded);
+      $('#ovg-total_square').text(solution_rounded);
+      $('#squared_size').val(solution_rounded);
       $('[name="quantity"]').attr('value', output_boxes).val(output_boxes);
       $('#quantity_look_alike').val(output_boxes);
       $('#product_page_total').text('$' + rounded_total_avg.toFixed(2));
       
-      // Update custom display elements directly - use formatted strings
-      // Set flag BEFORE updates and keep it true for 200ms to prevent race conditions
-      window.ovgDirectUpdate = true;
-      
-      // Update display with formatted values (preserves ".10" instead of ".1")
-      // FORCE string format to ensure trailing zeros are preserved
-      var overageText = Number(overage_amount).toFixed(2);
-      var totalText = Number(solution).toFixed(2);
-      var priceText = '$' + Number(rounded_total_avg).toFixed(2);
-      
-      console.log('CALCULATOR UPDATE:', { overageText, totalText, priceText, boxes: output_boxes });
-      
-      // Update the display elements with properly formatted values
-      document.getElementById('ovg-overage-display').innerHTML = overageText + '&nbsp;<span>sq.ft.</span>';
-      document.getElementById('ovg-total-display').innerHTML = totalText + '&nbsp;<span>sq.ft.</span>';
-      document.getElementById('ovg-boxes-display').textContent = output_boxes;
-      document.getElementById('ovg-price-display').textContent = priceText;
-      
-      // Force red color on price using inline style
-      document.getElementById('ovg-price-display').style.cssText = 'color: #E12B28 !important;';
-      
-      // Keep flag true for 200ms to prevent updateCustomResults from overriding
-      setTimeout(function() {
-        window.ovgDirectUpdate = false;
-      }, 200);
+      // Update custom display elements
+      $('#ovg-overage-display').text(overage_amount_rounded.toFixed(2) + ' Sq. Ft.');
+      $('#ovg-total-display').text(solution_rounded.toFixed(2) + ' Sq. Ft.');
+      $('#ovg-boxes-display').text(output_boxes);
+      $('#ovg-price-display').text('$' + rounded_total_avg.toFixed(2));
       
       console.log('Updated custom display:', {
-        overage: overage_amount_formatted,
-        total: solution_formatted,
+        overage: overage_amount_rounded,
+        total: solution_rounded,
         boxes: output_boxes,
         price: '$' + rounded_total_avg.toFixed(2)
       });
@@ -1911,23 +1915,21 @@
 
       var total_coverage = output_boxes * box_dimensions;
       var total_coverage_rounded = parseFloat(total_coverage.toFixed(2));
-      // CRITICAL: Keep as formatted string to preserve trailing zeros like "122.10"
-      var total_coverage_formatted = total_coverage.toFixed(2);
       
       var product_price = {{ product.price | divided_by: 100.00 }};
       var total_cost_avg = product_price * output_boxes;
       var rounded_total_avg = roundUp(total_cost_avg, 2);
       
       $('#boxes').val(output_boxes);
-      $('#solution').val(total_coverage_formatted);
-      $('#squared_size').val(total_coverage_formatted);
-      $('#total_cost').val('$' + rounded_total_avg.toFixed(2));
+      $('#solution').val(total_coverage_rounded);
+      $('#squared_size').val(total_coverage_rounded);
+      $('#total_cost').val('$' + rounded_total_avg);
       $('#boxes_needed').text(output_boxes);
       $('[name="quantity"]').attr('value',output_boxes).val(output_boxes);
       $('#quantity_look_alike').val(output_boxes);
-      $('#product_page_total').text('$' + rounded_total_avg.toFixed(2));
-      $('#calculator-footage').val(total_coverage_formatted);
-      $('#ovg-calculator-footage').val(total_coverage_formatted);
+      $('#product_page_total').text('$' + rounded_total_avg);
+      $('#calculator-footage').val(total_coverage_rounded);
+      $('#ovg-calculator-footage').val(total_coverage_rounded);
       // Update property fields
       updatePropertyFields(output_boxes, total_coverage_rounded, output_boxes * tiles_per_box);
     }
@@ -1947,18 +1949,16 @@
       
       var q_calc = quantity_look_alike * box_dimensions;
       var q_calc_rounded = parseFloat(q_calc.toFixed(2));
-      // CRITICAL: Keep as formatted string to preserve trailing zeros like "122.10"
-      var q_calc_formatted = q_calc.toFixed(2);
       var product_price = {{ product.price | divided_by: 100.00 }};
       var total_price = product_price * quantity_look_alike;
       var rounded_total = up(total_price, 2);
 
       $('#product_page_total').text('$' + rounded_total.toFixed(2));
-      $('#squared_size').val(q_calc_formatted);
-      $('#calculator-footage').val(q_calc_formatted);
-      $('#ovg-calculator-footage').val(q_calc_formatted);
+      $('#squared_size').val(q_calc_rounded);
+      $('#calculator-footage').val(q_calc_rounded);
+      $('#ovg-calculator-footage').val(q_calc_rounded);
       
-      $('[name="quantity"]').attr('value',quantity_look_alike).val(quantity_look_alike).trigger('input').trigger('change');
+      $('[name="quantity"]').attr('value',quantity_look_alike).val(quantity_look_alike);
       
       // Update property fields
       updatePropertyFields(quantity_look_alike, q_calc_rounded, quantity_look_alike * tiles_per_box);
@@ -1990,13 +1990,6 @@
       
       // Update property fields
       updatePropertyFields(boxes, total_coverage_rounded, boxes * {{tiles_per_box}});
-      
-      // Update Button Text Dynamic
-      var unitType = 'Boxes'; 
-      // You can add logic here if unit type varies (e.g. sheets) based on product type
-      $('#addToCartquanitity span').html('<span style="font-size:18px;">🛒</span><span>Add ' + boxes + ' ' + unitType + ' to Cart</span>');
-
-      // Removed overage disabling logic to allow popup flow
     }
 
     function updateOVGCalculatorOutputs(boxes, solution, totalCost) {
@@ -2005,8 +1998,8 @@
           $('#overage-submit').remove();
       }
       $('#ovg-boxes').val(boxes);
-      $('#ovg-solution').val(parseFloat(solution || 0).toFixed(2)); // Ensure 2 decimal places
-      $('#ovg-total_square').text(parseFloat(solution || 0).toFixed(2));
+      $('#ovg-solution').val(solution);
+      $('#ovg-total_square').text(solution);
       $('#ovg-total_cost').val('$' + totalCost.toFixed(2));
       $('#ovg-boxes_needed').text(boxes);
       $('[name="quantity"]').attr('value',boxes).val(boxes);
@@ -2020,18 +2013,11 @@
       var total_coverage = boxes * box_dimensions;
       var total_coverage_rounded = parseFloat(total_coverage.toFixed(2));
       
-      // Update total coverage - ensure 2 decimal places
-      $('#ovg-total_coverage').val(parseFloat(total_coverage_rounded).toFixed(2));
+      // Update total coverage
+      $('#ovg-total_coverage').val(total_coverage_rounded);
       
       // Update property fields
       updatePropertyFields(boxes, total_coverage_rounded, boxes * {{tiles_per_box}});
-      
-      // Update Button Text Dynamic
-      var unitType = 'Boxes'; 
-      // You can add logic here if unit type varies (e.g. sheets) based on product type
-      $('#addToCartquanitity span').html('<span style="font-size:18px;">🛒</span><span>Add ' + boxes + ' ' + unitType + ' to Cart</span>');
-
-      // Removed overage disabling logic to allow popup flow
     }
 
     function updateTotalCoverage(box_dimensions) {
@@ -2039,11 +2025,9 @@
         var quantity_boxes = Number($('#boxes').val() || 0);
         var q_calc = quantity_boxes * box_dimensions;
         var q_calc_rounded = parseFloat(q_calc.toFixed(2));
-        // CRITICAL: Keep as formatted string to preserve trailing zeros like "122.10"
-        var q_calc_formatted = q_calc.toFixed(2);
-        $('#total_coverage').val(q_calc_formatted);
-        $('#total_square').text(q_calc_formatted);
-        $('#squared_size').val(q_calc_formatted);
+        $('#total_coverage').val(q_calc_rounded);
+        $('#total_square').text(q_calc_rounded);
+        $('#squared_size').val(q_calc_rounded);
         
         // Update property fields
         updatePropertyFields(quantity_boxes, q_calc_rounded, quantity_boxes * {{tiles_per_box}});
@@ -2055,8 +2039,8 @@
         var quantity_boxes = Number($('#ovg-boxes').val() || 0);
         var q_calc = quantity_boxes * box_dimensions;
         var q_calc_rounded = parseFloat(q_calc.toFixed(2));
-        $('#ovg-total_coverage').val(q_calc_rounded.toFixed(2)); // Ensure 2 decimal places
-        $('#ovg-total_square').text(q_calc_rounded.toFixed(2));
+        $('#ovg-total_coverage').val(q_calc_rounded);
+        $('#ovg-total_square').text(q_calc_rounded);
         $('#squared_size').val(q_calc_rounded);
         
         // Update property fields
@@ -2064,12 +2048,10 @@
       }, 200);
     }
 
-    {% if product.tags contains "overage-popup-v3" or product.tags contains "overage-v3" %}
-    {% comment %} {% if true %} {% endcomment %}
+    {% if product.tags contains "overage-popup-v3" %}
       if ($('#x-atc-button-{{ section.id }}').length) {
         var $button = $('#x-atc-button-{{ section.id }}');
-        // Fix: Add styles to ensure overlay actually covers the button
-        var $overlay = $('<div id="overage-submit" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:50; cursor:pointer; background:transparent;"></div>');
+        var $overlay = $('<div id="overage-submit"></div>');
         // Append the overlay to the button's parent
         $button.parent().css('position', 'relative').append($overlay);
       }
@@ -2098,39 +2080,23 @@
         }
       });
 
-      // Close when clicking outside content
-      $("#ovg-popup").click(function(event) {
-        var container = $(".tile-calculator-wrapper");
-        
-        // If click is NOT on container and NOT on a descendant of container
-        if (!container.is(event.target) && container.has(event.target).length === 0) {
-            
-            // If we have calculated boxes, submit (logic from original code)
-            if (typeof output_boxes !== 'undefined' && output_boxes > 0) {
-                {% if product.variants.first.inventory_management == 'shopify' %}
-                  if (output_boxes > {{ max_qty }}) {
-                      alert("Only {{ max_qty }} available");
-                      return;
-                  }
-                {% endif %}
-                $("#ovg-popup").removeClass("ovg-popup-open");
-                $(this).parents('html').removeClass('overflow-pop-hidden');
-                $('#x-atc-button-{{ section.id }}').click();
-            } else {
-                // Just close if no calc active
-                $("#ovg-popup").removeClass("ovg-popup-open");
-                $(this).parents('html').removeClass('overflow-pop-hidden');
-                 $('#x-atc-button-{{ section.id }}').click(); // Always submit on close as "No Thanks" equivalent
-            }
+      $("#ovg-popup-close").click(function(event) {
+        // Act like Add to Cart button when closing
+        if (output_boxes > 0) {
+            {% if product.variants.first.inventory_management == 'shopify' %}
+              if (output_boxes > {{ max_qty }}) {
+                  alert("Only {{ max_qty }} available");
+                  return;
+              }
+            {% endif %}
+            $("#ovg-popup").removeClass("ovg-popup-open");
+            $(this).parents('html').removeClass('overflow-pop-hidden');
+            $('#x-atc-button-{{ section.id }}').click();
+        } else {
+            // If no calculation, just close
+            $("#ovg-popup").removeClass("ovg-popup-open");
+            $(this).parents('html').removeClass('overflow-pop-hidden');
         }
-      });
-      
-      // Close button handler (X icon)
-      $(".productInfo-popup-close").click(function(event) {
-         $("#ovg-popup").removeClass("ovg-popup-open");
-         $('html').removeClass('overflow-pop-hidden');
-         // Treat X as "Add to cart with original quantity"
-         $('#x-atc-button-{{ section.id }}').click();
       });
 
       $('#overage-submit').click(function() {
@@ -2138,27 +2104,7 @@
           $(this).parents('html').addClass('overflow-pop-hidden');
           $("#ovg-popup").addClass("ovg-popup-open");
           
-          // RESET calculator when popup opens
-          $('#ovg-calculator-footage').val('');
-          $('#ovg-calculator-length-ft').val('');
-          $('#ovg-calculator-length-in').val('');
-          $('#ovg-calculator-width-ft').val('');
-          $('#ovg-calculator-width-in').val('');
-          // Reset overage selection to 10% (default)
-          $('input[name="properties[OVERAGE]"][value="0.10"]').prop('checked', true);
-          // Reset result displays
-          const zeroSqFt = '0.00&nbsp;<span>sq.ft.</span>';
-          $('#ovg-overage-display').html(zeroSqFt);
-          $('#ovg-total-display').html(zeroSqFt);
-          $('#ovg-boxes-display').text('0');
-          $('#ovg-price-display').text('$0.00').attr('style', 'color: #E12B28 !important;');
-          // Reset hidden fields
-          $('#ovg-solution').val('0');
-          $('#ovg-total_coverage').val('0');
-          $('#ovg-boxes').val('0');
-          $('#ovg-total_cost').val('$0.00');
-          
-          // Auto-populate with current square footage if available
+          // Auto-populate with current square footage and calculate with 10% overage
           setTimeout(function() {
             const currentFootage = $('#squared_size').val() || $('#calculator-footage').val() || '';
             if (currentFootage && parseFloat(currentFootage) > 0) {
@@ -2179,8 +2125,44 @@
     console.log("All event listeners and functions set up.");
   });
 
-  // REMOVED updateCustomResults() - calculateOverage() already handles all display updates directly
-  // This prevents any race conditions or value overwrites
+  // Function to update custom results display
+  function updateCustomResults() {
+    // Wait a bit for the original calculation to complete
+    setTimeout(function() {
+      // Get values from hidden original results
+      const overageValue = $('#ovg-solution').val() || '0';
+      const totalValue = $('#ovg-total_coverage').val() || '0';
+      const boxesValue = $('#ovg-boxes').val() || '0';
+      const priceValue = $('#ovg-total_cost').val() || '$0.00';
+      
+      // Update custom display elements
+      $('#ovg-overage-display').text(overageValue + ' Sq. Ft.');
+      $('#ovg-total-display').text(totalValue + ' Sq. Ft.');
+      $('#ovg-boxes-display').text(boxesValue);
+      $('#ovg-price-display').text(priceValue);
+      
+      console.log('Updated custom results:', {
+        overage: overageValue,
+        total: totalValue,
+        boxes: boxesValue,
+        price: priceValue
+      });
+    }, 100);
+  }
+
+  // Hook into the calculateOverage function
+  const originalCalculateOverage = window.calculateOverage;
+  window.calculateOverage = function() {
+    if (originalCalculateOverage) {
+      originalCalculateOverage.apply(this, arguments);
+      updateCustomResults();
+    }
+  };
+
+  // Also update when any of the original result fields change
+  $(document).on('change input', '#ovg-solution, #ovg-total_coverage, #ovg-boxes, #ovg-total_cost', function() {
+    updateCustomResults();
+  });
 </script>
 
                 
@@ -2678,7 +2660,8 @@
                         class: 'form',
                         novalidate: 'novalidate',
                         data-type: 'add-to-cart-form',
-                        x-ref: 'product_form'
+                        x-ref: 'product_form',
+                        enctype: 'multipart/form-data'
                       -%}
                       {% if product.tags contains "Tile_calculator" or product.tags contains "overage-popup-v3" %}
                       {% if product.metafields.measuringunitsatd.measuring_units_atd == "Box" %}
